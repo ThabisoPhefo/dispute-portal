@@ -1,0 +1,19 @@
+{
+  "name": "@dispute-portal/shared-types",
+  "version": "1.0.0",
+  "description": "Shared Zod schemas and TypeScript types for the Dispute Portal",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

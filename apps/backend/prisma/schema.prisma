@@ -1,0 +1,57 @@
+// This is your Prisma schema file.
+// Reference: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Enums  (mirror the Zod enums in packages/shared-types/src/index.ts)
+// ──────────────────────────────────────────────────────────────────────────────
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum DisputeReason {
+  UNAUTHORIZED_TRANSACTION
+  DUPLICATE_CHARGE
+  INCORRECT_AMOUNT
+  GOODS_NOT_RECEIVED
+  OTHER
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Models
+// ──────────────────────────────────────────────────────────────────────────────
+
+model Transaction {
+  id        String    @id @default(uuid())
+  merchant  String
+  amount    Decimal   @db.Decimal(10, 2)
+  currency  String    @db.Char(3)
+  date      DateTime
+  category  String
+  createdAt DateTime  @default(now())
+  disputes  Dispute[]
+}
+
+model Dispute {
+  id            String        @id @default(uuid())
+  transactionId String
+  reason        DisputeReason
+  description   String
+  status        DisputeStatus @default(OPEN)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  transaction   Transaction   @relation(fields: [transactionId], references: [id])
+}
