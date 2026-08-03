@@ -1,1 +1,59 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 2px 8px -1px rgb(0 0 0 / 0.1), 0 1px 3px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 8px 20px -4px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.06);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  color-scheme: light;
+  --background: hsl(0 0% 96%);
+  --foreground: hsl(0 0% 8%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 8%);
+  --primary: hsl(0 0% 8%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 92%);
+  --secondary-foreground: hsl(0 0% 8%);
+  --muted: hsl(0 0% 94%);
+  --muted-foreground: hsl(0 0% 42%);
+  --accent: hsl(0 0% 92%);
+  --accent-foreground: hsl(0 0% 8%);
+  --destructive: hsl(0 84% 60%);
+  --border: hsl(0 0% 86%);
+  --input: hsl(0 0% 86%);
+  --ring: hsl(0 0% 8%);
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply m-0 min-h-svh bg-background font-sans text-foreground antialiased;
+  }
+}
