@@ -1,13 +1,10 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppHeader } from './components/app-header'
-
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
-    </div>
-  )
-}
+import { SiteFooter } from './components/site-footer'
+import { HomePage } from './pages/home-page'
+import { ManagePage } from './pages/manage-page'
+import { AdminPage } from './pages/admin-page'
+import { ConfirmationPage } from './pages/confirmation-page'
 
 export default function App() {
   return (
@@ -16,11 +13,13 @@ export default function App() {
         <AppHeader />
         <main className="flex-1">
           <Routes>
-            <Route path="/" element={<Placeholder title="Book" />} />
-            <Route path="/manage" element={<Placeholder title="Manage" />} />
-            <Route path="/admin" element={<Placeholder title="Staff" />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/manage" element={<ManagePage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/confirmation/:ref" element={<ConfirmationPage />} />
           </Routes>
         </main>
+        <SiteFooter />
       </div>
     </BrowserRouter>
   )
