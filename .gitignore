@@ -35,3 +35,6 @@ apps/backend/node_modules/.prisma/
 
 # Test coverage
 coverage/
+
+# Private setup notes — not for the repo
+SETUP_NOTES.md
