@@ -5,12 +5,12 @@ import { formatTxnDate } from '../../lib/mock-data'
 function ClaimRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="mb-3.5 flex items-baseline gap-2.5 last:mb-0">
-      <div className="w-[62px] shrink-0 font-mono text-[10px] tracking-[0.06em] text-claim-muted">
+      <div className="w-15.5 shrink-0 font-mono text-[10px] tracking-wider text-claim-muted">
         {label}
       </div>
       <div
         className={cn(
-          'text-[13px] font-medium',
+          'text-sm font-medium',
           value ? 'text-claim-value' : 'font-normal text-claim-pending',
         )}
       >
@@ -51,12 +51,12 @@ export function BookingSummary({
 
   return (
     <aside className="relative overflow-hidden rounded-lg bg-ink text-white shadow-lg lg:sticky lg:top-20">
-      <div className="relative px-[22px] pb-[18px] pt-5">
-        <p className="mb-3.5 font-mono text-[10px] tracking-[0.12em] text-claim-muted">
+      <div className="relative px-5.5 pb-4.5 pt-5">
+        <p className="mb-3.5 font-mono text-[10px] tracking-widest text-claim-muted">
           CLAIM DETAIL
         </p>
 
-        <div className="absolute top-2 right-5 rotate-[-8deg] rounded border-2 border-review bg-review/10 px-2.5 py-1 font-display text-xs font-bold tracking-[0.06em] text-review">
+        <div className="absolute top-2 right-5 -rotate-6 rounded border-2 border-review bg-review/10 px-2.5 py-1 font-display text-xs font-bold tracking-wider text-review">
           {stamp}
         </div>
 
@@ -66,16 +66,16 @@ export function BookingSummary({
         <ClaimRow label="DATE" value={txnDate ? formatTxnDate(txnDate) : undefined} />
       </div>
 
-      <div className="relative h-0 border-t-[1.5px] border-dashed border-claim-divider">
-        <span className="absolute top-[-8px] left-[-8px] size-4 rounded-full bg-background" />
-        <span className="absolute top-[-8px] right-[-8px] size-4 rounded-full bg-background" />
+      <div className="relative h-0 border-t border-dashed border-claim-divider">
+        <span className="absolute -top-2 -left-2 size-4 rounded-full bg-background" />
+        <span className="absolute -top-2 -right-2 size-4 rounded-full bg-background" />
       </div>
 
-      <div className="relative px-[22px] pt-[18px] pb-[22px]">
-        <p className="mb-1.5 font-mono text-[10px] tracking-[0.1em] text-claim-muted">
+      <div className="relative px-5.5 pt-4.5 pb-5.5">
+        <p className="mb-1.5 font-mono text-[10px] tracking-widest text-claim-muted">
           CLAIM REFERENCE
         </p>
-        <p className="mb-4 font-mono text-[17px] font-medium tracking-[0.02em] text-white">
+        <p className="mb-4 font-mono text-lg font-medium tracking-wide text-white">
           {step >= 2 ? 'Pending submit' : '—'}
         </p>
 

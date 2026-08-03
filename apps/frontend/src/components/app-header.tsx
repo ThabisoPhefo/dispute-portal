@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../lib/utils'
 
@@ -9,10 +10,27 @@ const NAV = [
 
 export function AppHeader() {
   const { pathname } = useLocation()
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
-    <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6">
-      <div className="mx-auto flex max-w-5xl items-center gap-4 rounded-2xl border border-border/60 bg-card/80 px-3 py-2.5 shadow-lg backdrop-blur-md sm:gap-6 sm:px-5">
+    <header className="sticky top-0 z-40 px-4 pt-4 pb-3 sm:px-6">
+      <div
+        className={cn(
+          'mx-auto flex max-w-6xl items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 sm:gap-8 sm:px-6',
+          'border border-white/50 bg-white/45 shadow-[0_8px_32px_rgb(18_33_59/0.08)]',
+          'backdrop-blur-md backdrop-saturate-150',
+          'supports-backdrop-filter:bg-white/35',
+          scrolled &&
+            'bg-white/55 shadow-[0_8px_32px_rgb(18_33_59/0.12)] supports-backdrop-filter:bg-white/40',
+        )}
+      >
         <Link
           to="/"
           aria-label="Capitec home"
@@ -38,10 +56,10 @@ export function AppHeader() {
                 to={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200',
+                  'cursor-pointer rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200 sm:px-4',
                   active
                     ? 'bg-foreground text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+                    : 'text-muted-foreground hover:bg-white/50 hover:text-foreground',
                 )}
               >
                 {item.label}
