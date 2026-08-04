@@ -1,14 +1,19 @@
 import type { ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, Clock, Mail, MapPin, MessageSquare, UserRound } from 'lucide-react'
-import { findDispute } from '../lib/store'
+import { useDisputeStore } from '../lib/dispute-store'
 import { formatAmount, formatTxnDate, getReason, getTransaction } from '../lib/mock-data'
-import { microLabel } from '../lib/ui'
+import { card, microLabel } from '../lib/ui'
+import { cn } from '../lib/utils'
+import { buttonVariants } from '../components/ui/button-variants'
+import { DetailItem } from '../components/ui/detail-item'
 
 export function ConfirmationPage() {
   const { ref = '' } = useParams<{ ref: string }>()
-  const dispute = findDispute(ref)
-  if (!dispute) return <Navigate to="/manage" replace />
+  const dispute = useDisputeStore((s) =>
+    s.disputes.find((d) => d.ref.toLowerCase() === ref.trim().toLowerCase()),
+  )
+  if (!dispute) return <Navigate to="/disputes" replace />
 
   const transaction = getTransaction(dispute.transactionId)
   const reason = getReason(dispute.reasonId)
@@ -16,7 +21,7 @@ export function ConfirmationPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-      <div className="rounded-xl bg-card p-6 shadow-md sm:p-8">
+      <div className={cn(card, 'p-6 sm:p-8')}>
         <div className="flex items-start gap-3">
           <CheckCircle2
             className={cancelled ? 'mt-0.5 h-5 w-5 text-destructive' : 'mt-0.5 h-5 w-5 text-foreground'}
@@ -42,12 +47,12 @@ export function ConfirmationPage() {
         </div>
 
         <dl className="mt-6 grid gap-5 sm:grid-cols-2">
-          <Row
+          <DetailItem
             icon={<UserRound className="h-3.5 w-3.5" />}
             label="Merchant"
             value={transaction?.merchant ?? '—'}
           />
-          <Row
+          <DetailItem
             icon={<Clock className="h-3.5 w-3.5" />}
             label="Amount"
             value={
@@ -56,12 +61,12 @@ export function ConfirmationPage() {
                 : '—'
             }
           />
-          <Row
+          <DetailItem
             icon={<CalendarDays className="h-3.5 w-3.5" />}
             label="Transaction date"
             value={transaction ? formatTxnDate(transaction.date) : '—'}
           />
-          <Row
+          <DetailItem
             icon={<MapPin className="h-3.5 w-3.5" />}
             label="Reason"
             value={reason?.name ?? '—'}
@@ -87,34 +92,21 @@ export function ConfirmationPage() {
 
         <div className="mt-6 flex flex-wrap gap-2.5">
           <Link
-            to="/manage"
-            className="cursor-pointer rounded-lg bg-foreground px-4 py-2 text-xs font-medium text-primary-foreground shadow-md transition-all duration-200 hover:shadow-lg"
+            to="/disputes"
+            className={cn(buttonVariants({ size: 'sm' }), 'shadow-md hover:shadow-lg')}
           >
             View this dispute
           </Link>
           <Link
             to="/"
-            className="cursor-pointer rounded-lg border border-border bg-secondary px-4 py-2 text-xs font-medium text-foreground transition-all duration-200 hover:bg-card hover:shadow-md"
+            className={cn(
+              buttonVariants({ variant: 'secondary', size: 'sm' }),
+              'border border-border hover:shadow-md',
+            )}
           >
             Dispute another transaction
           </Link>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function Row({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-2.5">
-      <span className="mt-0.5 text-muted-foreground" aria-hidden="true">
-        {icon}
-      </span>
-      <div>
-        <dt className={microLabel}>{label}</dt>
-        <dd className="text-xs font-semibold leading-relaxed tracking-tight text-card-foreground">
-          {value}
-        </dd>
       </div>
     </div>
   )

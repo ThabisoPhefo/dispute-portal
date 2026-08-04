@@ -34,7 +34,7 @@ function TimelineItem({ done, children }: { done?: boolean; children: ReactNode 
   )
 }
 
-export function BookingSummary({
+export function ClaimSummary({
   merchant,
   amount,
   reasonName,

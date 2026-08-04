@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { microLabel } from '../../lib/ui'
 
-export function BookingItem({
+export function DetailItem({
   label,
   value,
   icon,

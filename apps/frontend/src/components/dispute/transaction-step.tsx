@@ -8,11 +8,11 @@ const PAGE_SIZE = 6
 
 type ViewMode = 'cards' | 'list'
 
-export function ServiceStep({
-  serviceId,
+export function TransactionStep({
+  transactionId,
   onSelect,
 }: {
-  serviceId: string
+  transactionId: string
   onSelect: (id: string) => void
 }) {
   const [page, setPage] = useState(0)
@@ -24,10 +24,10 @@ export function ServiceStep({
   const to = Math.min(start + PAGE_SIZE, TRANSACTIONS.length)
 
   return (
-    <section aria-labelledby="step-service">
+    <section aria-labelledby="step-transaction">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id="step-service" className="text-sm font-bold tracking-tight">
+          <h2 id="step-transaction" className="text-sm font-bold tracking-tight">
             Recent transactions
           </h2>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -84,7 +84,7 @@ export function ServiceStep({
             <TransactionCard
               key={t.id}
               transaction={t}
-              selected={serviceId === t.id}
+              selected={transactionId === t.id}
               onSelect={onSelect}
               delay={i * 60}
             />
@@ -102,7 +102,7 @@ export function ServiceStep({
             </thead>
             <tbody className="text-xs">
               {pageItems.map((t) => {
-                const selected = serviceId === t.id
+                const selected = transactionId === t.id
                 return (
                   <tr
                     key={t.id}

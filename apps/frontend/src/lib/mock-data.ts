@@ -1,3 +1,5 @@
+import type { DisputeReason } from '@dispute-portal/shared-types'
+
 export type Transaction = {
   id: string
   merchant: string
@@ -8,7 +10,7 @@ export type Transaction = {
 }
 
 export type DisputeReasonOption = {
-  id: string
+  id: DisputeReason
   name: string
   description: string
 }

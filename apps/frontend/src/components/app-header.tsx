@@ -3,10 +3,16 @@ import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../lib/utils'
 
 const NAV = [
-  { href: '/', label: 'Transactions' },
-  { href: '/manage', label: 'Disputes' },
-  { href: '/admin', label: 'Staff' },
+  { to: '/', label: 'Transactions' },
+  { to: '/disputes', label: 'Disputes' },
+  { to: '/staff', label: 'Staff' },
 ]
+
+function isActivePath(pathname: string, to: string) {
+  if (to === '/') return pathname === '/'
+  if (to === '/disputes') return pathname.startsWith('/disputes') || pathname.startsWith('/confirmation')
+  return pathname.startsWith(to)
+}
 
 export function AppHeader() {
   const { pathname } = useLocation()
@@ -49,11 +55,11 @@ export function AppHeader() {
 
         <nav aria-label="Main" className="ml-auto flex items-center gap-1 sm:gap-1.5">
           {NAV.map((item) => {
-            const active = pathname === item.href
+            const active = isActivePath(pathname, item.to)
             return (
               <Link
-                key={item.href}
-                to={item.href}
+                key={item.to}
+                to={item.to}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'cursor-pointer rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200 sm:px-4',

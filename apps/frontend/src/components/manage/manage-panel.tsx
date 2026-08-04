@@ -1,17 +1,13 @@
 import { useState, useTransition } from 'react'
 import { Loader2, Search } from 'lucide-react'
-import { cancelDisputeAction, lookupDispute } from '../../lib/actions'
+import { cancelDisputeAction, lookupDispute } from '../../lib/dispute-actions'
 import { formatAmount, formatTxnDate, getReason, getTransaction } from '../../lib/mock-data'
-import { allDisputes, type Dispute } from '../../lib/store'
+import { useDisputeStore } from '../../lib/dispute-store'
 import { cn } from '../../lib/utils'
-import { microLabel } from '../../lib/ui'
-import { BookingCard } from './booking-card'
-
-function statusLabel(status: Dispute['status']) {
-  if (status === 'cancelled') return 'Cancelled'
-  if (status === 'under_review') return 'Under review'
-  return 'Open'
-}
+import { card, microLabel } from '../../lib/ui'
+import { Button } from '../ui/button'
+import { StatusBadge } from '../ui/status-badge'
+import { DisputeCard } from './dispute-card'
 
 function formatFiledDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-ZA', {
@@ -22,48 +18,36 @@ function formatFiledDate(iso: string) {
 }
 
 export function ManagePanel() {
+  const disputes = useDisputeStore((s) => s.disputes)
   const [refInput, setRefInput] = useState('')
-  const [disputes, setDisputes] = useState(() => allDisputes())
-  const [selectedRef, setSelectedRef] = useState<string | null>(disputes[0]?.ref ?? null)
+  const [selectedRef, setSelectedRef] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [pending, startTransition] = useTransition()
 
-  const dispute = disputes.find((d) => d.ref === selectedRef) ?? null
+  const activeRef = selectedRef ?? disputes[0]?.ref ?? null
+  const dispute = disputes.find((d) => d.ref === activeRef) ?? null
   const transaction = dispute ? getTransaction(dispute.transactionId) : undefined
   const reason = dispute ? getReason(dispute.reasonId) : undefined
-
-  function refresh(nextSelected?: string | null) {
-    const next = allDisputes()
-    setDisputes(next)
-    if (nextSelected !== undefined) setSelectedRef(nextSelected)
-    else if (selectedRef && !next.some((d) => d.ref === selectedRef)) {
-      setSelectedRef(next[0]?.ref ?? null)
-    }
-  }
 
   function search() {
     setError('')
     startTransition(async () => {
       const res = await lookupDispute(refInput)
-      if (res.ok) {
-        refresh(res.dispute.ref)
-      } else {
-        setError(res.error)
-      }
+      if (res.ok) setSelectedRef(res.dispute.ref)
+      else setError(res.error)
     })
   }
 
   function cancel() {
     if (!dispute) return
     startTransition(async () => {
-      const res = await cancelDisputeAction(dispute.ref)
-      if (res.ok) refresh(res.dispute.ref)
+      await cancelDisputeAction(dispute.ref)
     })
   }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl bg-card p-5 shadow-md">
+      <div className={cn(card, 'p-5')}>
         <label className="block">
           <span className={cn(microLabel, 'mb-1.5 block')}>Claim reference</span>
           <div className="flex gap-2">
@@ -76,11 +60,12 @@ export function ManagePanel() {
               placeholder="DP-2026-0417"
               className="w-full rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs font-semibold uppercase tabular-nums tracking-wider outline-none transition-all duration-200 focus:border-foreground/30 focus:bg-card focus:ring-2 focus:ring-ring/20"
             />
-            <button
+            <Button
               type="button"
+              size="sm"
+              className="shrink-0 shadow-md hover:shadow-lg"
               onClick={search}
               disabled={pending || !refInput.trim()}
-              className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-xs font-medium text-primary-foreground shadow-md transition-all duration-200 hover:shadow-lg disabled:pointer-events-none disabled:opacity-30"
             >
               {pending ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -88,7 +73,7 @@ export function ManagePanel() {
                 <Search className="h-3.5 w-3.5" />
               )}
               Find
-            </button>
+            </Button>
           </div>
         </label>
         {error && (
@@ -115,18 +100,17 @@ export function ManagePanel() {
         </div>
 
         {disputes.length === 0 ? (
-          <div className="rounded-xl bg-card px-5 py-8 text-center shadow-md">
+          <div className={cn(card, 'px-5 py-8 text-center')}>
             <p className="text-sm font-medium tracking-tight">No disputes yet</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Filed claims will show up here from newest to oldest.
             </p>
           </div>
         ) : (
-          <ul className="overflow-hidden rounded-xl bg-card shadow-md">
+          <ul className={cn(card, 'overflow-hidden')}>
             {disputes.map((d) => {
               const txn = getTransaction(d.transactionId)
-              const selected = d.ref === selectedRef
-              const active = d.status !== 'cancelled'
+              const selected = d.ref === activeRef
               return (
                 <li key={d.ref} className="border-b border-border/30 last:border-b-0">
                   <button
@@ -150,16 +134,7 @@ export function ManagePanel() {
                         Filed {formatFiledDate(d.createdAt)}
                       </p>
                     </div>
-                    <span
-                      className={cn(
-                        'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider',
-                        active
-                          ? 'bg-foreground text-primary-foreground'
-                          : 'border border-destructive/30 bg-destructive/10 text-destructive',
-                      )}
-                    >
-                      {statusLabel(d.status)}
-                    </span>
+                    <StatusBadge status={d.status} />
                   </button>
                 </li>
               )
@@ -169,7 +144,7 @@ export function ManagePanel() {
       </section>
 
       {dispute && (
-        <BookingCard
+        <DisputeCard
           dispute={dispute}
           transaction={transaction}
           reason={reason}

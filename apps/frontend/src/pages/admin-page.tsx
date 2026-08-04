@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react'
 import { CalendarDays, CircleSlash, Users } from 'lucide-react'
-import { allDisputes } from '../lib/store'
+import { useDisputeStore } from '../lib/dispute-store'
 import { formatAmount, formatTxnDate, getReason, getTransaction } from '../lib/mock-data'
+import { card } from '../lib/ui'
+import { cn } from '../lib/utils'
+import { StatusBadge } from '../components/ui/status-badge'
 
 export function AdminPage() {
-  const disputes = allDisputes()
+  const disputes = useDisputeStore((s) => s.disputes)
   const open = disputes.filter((d) => d.status === 'open' || d.status === 'under_review')
   const underReview = disputes.filter((d) => d.status === 'under_review')
   const cancelled = disputes.filter((d) => d.status === 'cancelled')
@@ -29,7 +32,7 @@ export function AdminPage() {
         <Stat icon={<CircleSlash className="h-4 w-4" />} label="Cancelled" value={cancelled.length} />
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-xl bg-card shadow-md">
+      <div className={cn(card, 'mt-6 overflow-hidden')}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="border-b border-border/60 bg-secondary/60 text-left text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -68,19 +71,7 @@ export function AdminPage() {
                       {txn ? formatTxnDate(txn.date) : '—'}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={
-                          d.status !== 'cancelled'
-                            ? 'inline-block whitespace-nowrap rounded-full bg-foreground px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground'
-                            : 'inline-block whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive'
-                        }
-                      >
-                        {d.status === 'under_review'
-                          ? 'Under review'
-                          : d.status === 'cancelled'
-                            ? 'Cancelled'
-                            : 'Open'}
-                      </span>
+                      <StatusBadge status={d.status} className="whitespace-nowrap" />
                     </td>
                   </tr>
                 )
@@ -95,7 +86,7 @@ export function AdminPage() {
 
 function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-card p-5 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+    <div className={cn(card, 'p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg')}>
       <span className="text-muted-foreground" aria-hidden="true">
         {icon}
       </span>

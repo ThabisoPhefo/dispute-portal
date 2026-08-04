@@ -1,11 +1,13 @@
 import { CalendarDays, Clock, MapPin, Phone, XCircle } from 'lucide-react'
-import type { Dispute } from '../../lib/store'
+import type { Dispute } from '../../lib/dispute-store'
 import type { DisputeReasonOption, Transaction } from '../../lib/mock-data'
 import { formatAmount, formatTxnDate } from '../../lib/mock-data'
+import { card } from '../../lib/ui'
 import { cn } from '../../lib/utils'
-import { BookingItem } from './booking-item'
+import { StatusBadge } from '../ui/status-badge'
+import { DetailItem } from '../ui/detail-item'
 
-export function BookingCard({
+export function DisputeCard({
   dispute,
   transaction,
   reason,
@@ -19,44 +21,29 @@ export function BookingCard({
   onCancel: () => void
 }) {
   const active = dispute.status !== 'cancelled'
-  const statusLabel =
-    dispute.status === 'cancelled'
-      ? 'Cancelled'
-      : dispute.status === 'under_review'
-        ? 'Under review'
-        : 'Open'
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-1 rounded-xl bg-card p-5 shadow-md duration-300 sm:p-6">
+    <div className={cn(card, 'animate-in fade-in slide-in-from-bottom-1 p-5 duration-300 sm:p-6')}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-base font-bold tabular-nums tracking-tight">{dispute.ref}</p>
           <p className="text-xs text-muted-foreground">{transaction?.merchant ?? '—'}</p>
         </div>
-        <span
-          className={cn(
-            'rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider',
-            active
-              ? 'bg-foreground text-primary-foreground'
-              : 'border border-destructive/30 bg-destructive/10 text-destructive',
-          )}
-        >
-          {statusLabel}
-        </span>
+        <StatusBadge status={dispute.status} />
       </div>
 
       <dl className="mt-5 grid gap-4 sm:grid-cols-2">
-        <BookingItem
+        <DetailItem
           label="Reason"
           value={reason?.name ?? '—'}
           icon={<Clock className="h-3.5 w-3.5" />}
         />
-        <BookingItem
+        <DetailItem
           label="Transaction date"
           value={transaction ? formatTxnDate(transaction.date) : '—'}
           icon={<CalendarDays className="h-3.5 w-3.5" />}
         />
-        <BookingItem
+        <DetailItem
           label="Amount"
           value={
             transaction
@@ -65,7 +52,7 @@ export function BookingCard({
           }
           icon={<MapPin className="h-3.5 w-3.5" />}
         />
-        <BookingItem
+        <DetailItem
           label="Description"
           value={dispute.description}
           icon={<Phone className="h-3.5 w-3.5" />}

@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
 import { CalendarCheck, ShieldCheck, Timer, Wallet } from 'lucide-react'
-import { BookingFlow } from '../components/booking/booking-flow'
+import { DisputeFlow } from '../components/dispute/dispute-flow'
 import { TRANSACTIONS } from '../lib/mock-data'
+import { card } from '../lib/ui'
+import { cn } from '../lib/utils'
+import { buttonVariants } from '../components/ui/button-variants'
 import type { ReactNode } from 'react'
 
 export function HomePage() {
@@ -26,11 +29,16 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="mt-8" id="book">
-        <BookingFlow />
+      <section className="mt-8" id="dispute">
+        <DisputeFlow />
       </section>
 
-      <section className="mt-6 flex flex-col items-start gap-4 rounded-xl bg-card p-5 shadow-md transition-all duration-200 hover:shadow-lg sm:flex-row sm:items-center sm:justify-between">
+      <section
+        className={cn(
+          card,
+          'mt-6 flex flex-col items-start gap-4 p-5 transition-all duration-200 hover:shadow-lg sm:flex-row sm:items-center sm:justify-between',
+        )}
+      >
         <div className="flex items-start gap-3">
           <CalendarCheck className="mt-0.5 h-4 w-4 text-muted-foreground" />
           <div>
@@ -42,10 +50,7 @@ export function HomePage() {
             </p>
           </div>
         </div>
-        <Link
-          to="/manage"
-          className="cursor-pointer rounded-lg bg-foreground px-4 py-2 text-xs font-medium text-primary-foreground transition-all duration-200 hover:opacity-90"
-        >
+        <Link to="/disputes" className={cn(buttonVariants({ size: 'sm' }), 'hover:opacity-90')}>
           View disputes
         </Link>
       </section>

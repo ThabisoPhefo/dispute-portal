@@ -2,16 +2,16 @@ import { REASONS } from '../../lib/mock-data'
 import { cn } from '../../lib/utils'
 import { selectableCard } from '../../lib/ui'
 
-export function BranchStep({
-  branchId,
+export function ReasonStep({
+  reasonId,
   onSelect,
 }: {
-  branchId: string
+  reasonId: string
   onSelect: (id: string) => void
 }) {
   return (
-    <section aria-labelledby="step-branch">
-      <h2 id="step-branch" className="text-sm font-bold tracking-tight">
+    <section aria-labelledby="step-reason">
+      <h2 id="step-reason" className="text-sm font-bold tracking-tight">
         Why are you disputing this?
       </h2>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -27,7 +27,7 @@ export function BranchStep({
             className={cn(
               'animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300 flex items-start gap-3',
               selectableCard.base,
-              branchId === r.id ? selectableCard.selected : selectableCard.idle,
+              reasonId === r.id ? selectableCard.selected : selectableCard.idle,
             )}
           >
             <span className="min-w-0">
