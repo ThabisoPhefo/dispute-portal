@@ -15,6 +15,10 @@ type Store = { disputes: Dispute[] }
 
 const g = globalThis as unknown as { __disputeStore?: Store }
 
+function daysAgo(days: number) {
+  return new Date(Date.now() - days * 86400_000).toISOString()
+}
+
 function seed(): Dispute[] {
   return [
     {
@@ -23,7 +27,7 @@ function seed(): Dispute[] {
       reasonId: 'DUPLICATE_CHARGE',
       description: 'I was charged twice for the same Takealot order.',
       status: 'under_review',
-      createdAt: new Date(Date.now() - 2 * 86400_000).toISOString(),
+      createdAt: daysAgo(2),
     },
     {
       ref: 'DP-2026-0400',
@@ -31,7 +35,23 @@ function seed(): Dispute[] {
       reasonId: 'INCORRECT_AMOUNT',
       description: 'The trip fare shown in the app was lower than what was deducted.',
       status: 'open',
-      createdAt: new Date(Date.now() - 5 * 86400_000).toISOString(),
+      createdAt: daysAgo(5),
+    },
+    {
+      ref: 'DP-2026-0388',
+      transactionId: 'txn-netflix',
+      reasonId: 'UNAUTHORIZED_TRANSACTION',
+      description: 'I did not recognise this Netflix charge on my account.',
+      status: 'cancelled',
+      createdAt: daysAgo(12),
+    },
+    {
+      ref: 'DP-2026-0350',
+      transactionId: 'txn-shell',
+      reasonId: 'GOODS_NOT_RECEIVED',
+      description: 'Fuel payment went through but the pump did not dispense.',
+      status: 'under_review',
+      createdAt: daysAgo(20),
     },
   ]
 }

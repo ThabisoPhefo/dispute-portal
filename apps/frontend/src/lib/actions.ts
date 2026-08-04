@@ -1,4 +1,10 @@
-import { addDispute, cancelDispute, findDispute, newRef, type Dispute } from './store'
+import {
+  addDispute,
+  cancelDispute,
+  findDispute,
+  newRef,
+  type Dispute,
+} from './store'
 import { getReason, getTransaction } from './mock-data'
 
 export type DisputeInput = {

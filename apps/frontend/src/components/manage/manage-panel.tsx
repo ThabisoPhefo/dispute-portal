@@ -1,25 +1,53 @@
 import { useState, useTransition } from 'react'
 import { Loader2, Search } from 'lucide-react'
 import { cancelDisputeAction, lookupDispute } from '../../lib/actions'
-import { getReason, getTransaction } from '../../lib/mock-data'
-import type { Dispute } from '../../lib/store'
+import { formatAmount, formatTxnDate, getReason, getTransaction } from '../../lib/mock-data'
+import { allDisputes, type Dispute } from '../../lib/store'
 import { cn } from '../../lib/utils'
 import { microLabel } from '../../lib/ui'
 import { BookingCard } from './booking-card'
 
+function statusLabel(status: Dispute['status']) {
+  if (status === 'cancelled') return 'Cancelled'
+  if (status === 'under_review') return 'Under review'
+  return 'Open'
+}
+
+function formatFiledDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-ZA', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 export function ManagePanel() {
   const [refInput, setRefInput] = useState('')
-  const [dispute, setDispute] = useState<Dispute | null>(null)
+  const [disputes, setDisputes] = useState(() => allDisputes())
+  const [selectedRef, setSelectedRef] = useState<string | null>(disputes[0]?.ref ?? null)
   const [error, setError] = useState('')
   const [pending, startTransition] = useTransition()
+
+  const dispute = disputes.find((d) => d.ref === selectedRef) ?? null
+  const transaction = dispute ? getTransaction(dispute.transactionId) : undefined
+  const reason = dispute ? getReason(dispute.reasonId) : undefined
+
+  function refresh(nextSelected?: string | null) {
+    const next = allDisputes()
+    setDisputes(next)
+    if (nextSelected !== undefined) setSelectedRef(nextSelected)
+    else if (selectedRef && !next.some((d) => d.ref === selectedRef)) {
+      setSelectedRef(next[0]?.ref ?? null)
+    }
+  }
 
   function search() {
     setError('')
     startTransition(async () => {
       const res = await lookupDispute(refInput)
-      if (res.ok) setDispute(res.dispute)
-      else {
-        setDispute(null)
+      if (res.ok) {
+        refresh(res.dispute.ref)
+      } else {
         setError(res.error)
       }
     })
@@ -29,12 +57,9 @@ export function ManagePanel() {
     if (!dispute) return
     startTransition(async () => {
       const res = await cancelDisputeAction(dispute.ref)
-      if (res.ok) setDispute({ ...res.dispute })
+      if (res.ok) refresh(res.dispute.ref)
     })
   }
-
-  const transaction = dispute ? getTransaction(dispute.transactionId) : undefined
-  const reason = dispute ? getReason(dispute.reasonId) : undefined
 
   return (
     <div className="space-y-4">
@@ -75,6 +100,73 @@ export function ManagePanel() {
           </p>
         )}
       </div>
+
+      <section aria-labelledby="dispute-history">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <h2 id="dispute-history" className="text-sm font-bold tracking-tight">
+              Dispute history
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">Newest claims first.</p>
+          </div>
+          <p className="text-[11px] tabular-nums text-muted-foreground">
+            {disputes.length} claim{disputes.length === 1 ? '' : 's'}
+          </p>
+        </div>
+
+        {disputes.length === 0 ? (
+          <div className="rounded-xl bg-card px-5 py-8 text-center shadow-md">
+            <p className="text-sm font-medium tracking-tight">No disputes yet</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Filed claims will show up here from newest to oldest.
+            </p>
+          </div>
+        ) : (
+          <ul className="overflow-hidden rounded-xl bg-card shadow-md">
+            {disputes.map((d) => {
+              const txn = getTransaction(d.transactionId)
+              const selected = d.ref === selectedRef
+              const active = d.status !== 'cancelled'
+              return (
+                <li key={d.ref} className="border-b border-border/30 last:border-b-0">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRef(d.ref)}
+                    aria-pressed={selected}
+                    className={cn(
+                      'flex w-full cursor-pointer items-start justify-between gap-3 px-4 py-3.5 text-left transition-colors duration-200 sm:px-5',
+                      selected ? 'bg-secondary' : 'hover:bg-secondary/50',
+                    )}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold tabular-nums tracking-tight">{d.ref}</p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {txn?.merchant ?? '—'}
+                        {txn
+                          ? ` · ${formatAmount(txn.amount, txn.currency)} · ${formatTxnDate(txn.date)}`
+                          : ''}
+                      </p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Filed {formatFiledDate(d.createdAt)}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider',
+                        active
+                          ? 'bg-foreground text-primary-foreground'
+                          : 'border border-destructive/30 bg-destructive/10 text-destructive',
+                      )}
+                    >
+                      {statusLabel(d.status)}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </section>
 
       {dispute && (
         <BookingCard
