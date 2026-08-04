@@ -17,17 +17,17 @@ export function DisputeFlow() {
 
   const [step, setStep] = useState(0)
   const [transactionId, setTransactionId] = useState('')
-  const [reasonId, setReasonId] = useState('')
+  const [reason, setReason] = useState('')
   const [form, setForm] = useState<DetailsForm>({ description: '' })
   const [error, setError] = useState('')
   const [pending, startTransition] = useTransition()
 
   const transaction = getTransaction(transactionId)
-  const reason = getReason(reasonId)
+  const reasonOption = getReason(reason)
 
   const canContinue =
     (step === 0 && !!transactionId) ||
-    (step === 1 && !!reasonId) ||
+    (step === 1 && !!reason) ||
     step === 2
 
   function submit() {
@@ -35,7 +35,7 @@ export function DisputeFlow() {
     startTransition(async () => {
       const res = await createDispute({
         transactionId,
-        reasonId,
+        reason,
         description: form.description,
       })
       if ('error' in res) {
@@ -54,7 +54,7 @@ export function DisputeFlow() {
         {step === 0 && (
           <TransactionStep transactionId={transactionId} onSelect={setTransactionId} />
         )}
-        {step === 1 && <ReasonStep reasonId={reasonId} onSelect={setReasonId} />}
+        {step === 1 && <ReasonStep reasonId={reason} onSelect={setReason} />}
         {step === 2 && (
           <DetailsStep
             form={form}
@@ -109,7 +109,7 @@ export function DisputeFlow() {
             ? formatAmount(transaction.amount, transaction.currency)
             : undefined
         }
-        reasonName={reason?.name}
+        reasonName={reasonOption?.name}
         txnDate={transaction?.date}
         step={step}
       />

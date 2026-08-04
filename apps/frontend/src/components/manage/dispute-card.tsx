@@ -20,7 +20,7 @@ export function DisputeCard({
   pending: boolean
   onCancel: () => void
 }) {
-  const active = dispute.status !== 'cancelled'
+  const active = dispute.status !== 'CANCELLED'
 
   return (
     <div className={cn(card, 'animate-in fade-in slide-in-from-bottom-1 p-5 duration-300 sm:p-6')}>

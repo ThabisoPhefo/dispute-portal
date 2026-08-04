@@ -16,8 +16,8 @@ export function ConfirmationPage() {
   if (!dispute) return <Navigate to="/disputes" replace />
 
   const transaction = getTransaction(dispute.transactionId)
-  const reason = getReason(dispute.reasonId)
-  const cancelled = dispute.status === 'cancelled'
+  const reason = getReason(dispute.reason)
+  const cancelled = dispute.status === 'CANCELLED'
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">

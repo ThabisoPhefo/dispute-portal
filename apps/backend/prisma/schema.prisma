@@ -19,6 +19,7 @@ enum DisputeStatus {
   UNDER_REVIEW
   APPROVED
   REJECTED
+  CANCELLED
 }
 
 enum DisputeReason {
@@ -46,6 +47,7 @@ model Transaction {
 
 model Dispute {
   id            String        @id @default(uuid())
+  ref           String        @unique
   transactionId String
   reason        DisputeReason
   description   String

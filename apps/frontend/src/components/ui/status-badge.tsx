@@ -1,4 +1,5 @@
-import { getStatusLabel, type DisputeStatus } from '../../lib/dispute-store'
+import { getStatusLabel } from '../../lib/dispute-store'
+import type { DisputeStatus } from '@dispute-portal/shared-types'
 import { cn } from '../../lib/utils'
 
 export function StatusBadge({
@@ -8,7 +9,7 @@ export function StatusBadge({
   status: DisputeStatus
   className?: string
 }) {
-  const active = status !== 'cancelled'
+  const active = status !== 'CANCELLED'
   return (
     <span
       className={cn(

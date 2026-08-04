@@ -8,9 +8,9 @@ import { StatusBadge } from '../components/ui/status-badge'
 
 export function AdminPage() {
   const disputes = useDisputeStore((s) => s.disputes)
-  const open = disputes.filter((d) => d.status === 'open' || d.status === 'under_review')
-  const underReview = disputes.filter((d) => d.status === 'under_review')
-  const cancelled = disputes.filter((d) => d.status === 'cancelled')
+  const open = disputes.filter((d) => d.status === 'OPEN' || d.status === 'UNDER_REVIEW')
+  const underReview = disputes.filter((d) => d.status === 'UNDER_REVIEW')
+  const cancelled = disputes.filter((d) => d.status === 'CANCELLED')
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -48,7 +48,7 @@ export function AdminPage() {
             <tbody className="text-xs">
               {disputes.map((d) => {
                 const txn = getTransaction(d.transactionId)
-                const reason = getReason(d.reasonId)
+                const reason = getReason(d.reason)
                 return (
                   <tr
                     key={d.ref}

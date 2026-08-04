@@ -1,9 +1,9 @@
-import { useDisputeStore, newRef, type Dispute, type DisputeStatus } from './dispute-store'
+import { useDisputeStore, newRef, type Dispute } from './dispute-store'
 import { getReason, getTransaction } from './mock-data'
 
 export type DisputeInput = {
   transactionId: string
-  reasonId: string
+  reason: string
   description: string
 }
 
@@ -15,7 +15,7 @@ export type DisputeInput = {
 export async function createDispute(
   input: DisputeInput,
 ): Promise<{ ok: true; ref: string } | { ok: false; error: string }> {
-  const reason = getReason(input.reasonId)
+  const reason = getReason(input.reason)
   if (!getTransaction(input.transactionId) || !reason) {
     return { ok: false, error: 'Please choose a valid transaction and reason.' }
   }
@@ -25,10 +25,10 @@ export async function createDispute(
 
   const dispute: Dispute = {
     transactionId: input.transactionId,
-    reasonId: reason.id,
+    reason: reason.id,
     description: input.description,
     ref: newRef(),
-    status: 'open' satisfies DisputeStatus,
+    status: 'OPEN',
     createdAt: new Date().toISOString(),
   }
   useDisputeStore.getState().addDispute(dispute)

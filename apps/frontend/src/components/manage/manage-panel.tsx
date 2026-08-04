@@ -27,7 +27,7 @@ export function ManagePanel() {
   const activeRef = selectedRef ?? disputes[0]?.ref ?? null
   const dispute = disputes.find((d) => d.ref === activeRef) ?? null
   const transaction = dispute ? getTransaction(dispute.transactionId) : undefined
-  const reason = dispute ? getReason(dispute.reasonId) : undefined
+  const reason = dispute ? getReason(dispute.reason) : undefined
 
   function search() {
     setError('')
