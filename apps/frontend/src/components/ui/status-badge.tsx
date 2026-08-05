@@ -1,4 +1,4 @@
-import { getStatusLabel } from '../../lib/dispute-store'
+import { getStatusLabel } from '../../lib/dispute-utils'
 import type { DisputeStatus } from '@dispute-portal/shared-types'
 import { cn } from '../../lib/utils'
 

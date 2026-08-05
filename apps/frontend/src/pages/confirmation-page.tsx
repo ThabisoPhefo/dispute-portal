@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
-import { CalendarDays, CheckCircle2, Clock, Mail, MapPin, MessageSquare, UserRound } from 'lucide-react'
-import { useDisputeStore } from '../lib/dispute-store'
-import { formatAmount, formatTxnDate, getReason, getTransaction } from '../lib/mock-data'
+import { CalendarDays, CheckCircle2, Clock, Loader2, Mail, MapPin, MessageSquare, UserRound } from 'lucide-react'
+import { useDispute, useTransactions } from '../lib/queries'
+import { formatAmount, formatTxnDate, getReason } from '../lib/mock-data'
 import { card, microLabel } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { buttonVariants } from '../components/ui/button-variants'
@@ -10,12 +10,19 @@ import { DetailItem } from '../components/ui/detail-item'
 
 export function ConfirmationPage() {
   const { ref = '' } = useParams<{ ref: string }>()
-  const dispute = useDisputeStore((s) =>
-    s.disputes.find((d) => d.ref.toLowerCase() === ref.trim().toLowerCase()),
-  )
-  if (!dispute) return <Navigate to="/disputes" replace />
+  const { data: dispute, isLoading, isError } = useDispute(ref)
+  const { data: transactions = [] } = useTransactions()
 
-  const transaction = getTransaction(dispute.transactionId)
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    )
+  }
+  if (isError || !dispute) return <Navigate to="/disputes" replace />
+
+  const transaction = transactions.find((t) => t.id === dispute.transactionId)
   const reason = getReason(dispute.reason)
   const cancelled = dispute.status === 'CANCELLED'
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react'
-import { formatAmount, formatTxnDate, TRANSACTIONS, type Transaction } from '../../lib/mock-data'
+import { ChevronLeft, ChevronRight, LayoutGrid, List, Loader2 } from 'lucide-react'
+import type { Transaction } from '@dispute-portal/shared-types'
+import { formatAmount, formatTxnDate } from '../../lib/mock-data'
 import { cn } from '../../lib/utils'
 import { selectableCard } from '../../lib/ui'
 
@@ -9,19 +10,31 @@ const PAGE_SIZE = 6
 type ViewMode = 'cards' | 'list'
 
 export function TransactionStep({
+  transactions,
+  isLoading,
   transactionId,
   onSelect,
 }: {
+  transactions: Transaction[]
+  isLoading?: boolean
   transactionId: string
   onSelect: (id: string) => void
 }) {
   const [page, setPage] = useState(0)
   const [view, setView] = useState<ViewMode>('cards')
-  const totalPages = Math.max(1, Math.ceil(TRANSACTIONS.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE))
   const start = page * PAGE_SIZE
-  const pageItems = TRANSACTIONS.slice(start, start + PAGE_SIZE)
+  const pageItems = transactions.slice(start, start + PAGE_SIZE)
   const from = start + 1
-  const to = Math.min(start + PAGE_SIZE, TRANSACTIONS.length)
+  const to = Math.min(start + PAGE_SIZE, transactions.length)
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <section aria-labelledby="step-transaction">
@@ -153,7 +166,7 @@ export function TransactionStep({
           <ChevronLeft className="h-3.5 w-3.5" /> Previous
         </button>
         <p className="text-[11px] tabular-nums text-muted-foreground">
-          {from}–{to} of {TRANSACTIONS.length}
+          {from}–{to} of {transactions.length}
         </p>
         <button
           type="button"
@@ -178,7 +191,7 @@ function TransactionCard({
   selected: boolean
   onSelect: (id: string) => void
   delay: number
-}) {
+})  {
   return (
     <button
       type="button"

@@ -1,8 +1,8 @@
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
-import { createDispute } from '../../lib/dispute-actions'
-import { formatAmount, getReason, getTransaction } from '../../lib/mock-data'
+import { useTransactions, useCreateDispute } from '../../lib/queries'
+import { formatAmount, getReason } from '../../lib/mock-data'
 import { card } from '../../lib/ui'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/button'
@@ -14,16 +14,17 @@ import { ClaimSummary } from './claim-summary'
 
 export function DisputeFlow() {
   const navigate = useNavigate()
+  const { data: transactions = [], isLoading: txnLoading } = useTransactions()
+  const createDispute = useCreateDispute()
 
   const [step, setStep] = useState(0)
   const [transactionId, setTransactionId] = useState('')
   const [reason, setReason] = useState('')
   const [form, setForm] = useState<DetailsForm>({ description: '' })
-  const [error, setError] = useState('')
-  const [pending, startTransition] = useTransition()
 
-  const transaction = getTransaction(transactionId)
+  const transaction = transactions.find((t) => t.id === transactionId)
   const reasonOption = getReason(reason)
+  const pending = createDispute.isPending
 
   const canContinue =
     (step === 0 && !!transactionId) ||
@@ -31,19 +32,13 @@ export function DisputeFlow() {
     step === 2
 
   function submit() {
-    setError('')
-    startTransition(async () => {
-      const res = await createDispute({
-        transactionId,
-        reason,
-        description: form.description,
-      })
-      if ('error' in res) {
-        setError(res.error)
-        return
-      }
-      navigate(`/confirmation/${res.ref}`)
-    })
+    createDispute.mutate(
+      { transactionId, reason: reason as never, description: form.description },
+      {
+        onSuccess: (dispute) => navigate(`/confirmation/${dispute.ref}`),
+        onError: (err) => console.error(err),
+      },
+    )
   }
 
   return (
@@ -52,13 +47,18 @@ export function DisputeFlow() {
         <StepperNav step={step} />
 
         {step === 0 && (
-          <TransactionStep transactionId={transactionId} onSelect={setTransactionId} />
+          <TransactionStep
+            transactions={transactions}
+            isLoading={txnLoading}
+            transactionId={transactionId}
+            onSelect={setTransactionId}
+          />
         )}
         {step === 1 && <ReasonStep reasonId={reason} onSelect={setReason} />}
         {step === 2 && (
           <DetailsStep
             form={form}
-            error={error}
+            error={createDispute.error?.message ?? ''}
             onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
           />
         )}

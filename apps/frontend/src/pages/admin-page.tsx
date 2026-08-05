@@ -1,16 +1,25 @@
 import type { ReactNode } from 'react'
-import { CalendarDays, CircleSlash, Users } from 'lucide-react'
-import { useDisputeStore } from '../lib/dispute-store'
-import { formatAmount, formatTxnDate, getReason, getTransaction } from '../lib/mock-data'
+import { CalendarDays, CircleSlash, Loader2, Users } from 'lucide-react'
+import { useDisputes, useTransactions } from '../lib/queries'
+import { formatAmount, formatTxnDate, getReason } from '../lib/mock-data'
 import { card } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { StatusBadge } from '../components/ui/status-badge'
 
 export function AdminPage() {
-  const disputes = useDisputeStore((s) => s.disputes)
+  const { data: disputes = [], isLoading } = useDisputes()
+  const { data: transactions = [] } = useTransactions()
   const open = disputes.filter((d) => d.status === 'OPEN' || d.status === 'UNDER_REVIEW')
   const underReview = disputes.filter((d) => d.status === 'UNDER_REVIEW')
   const cancelled = disputes.filter((d) => d.status === 'CANCELLED')
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -47,7 +56,7 @@ export function AdminPage() {
             </thead>
             <tbody className="text-xs">
               {disputes.map((d) => {
-                const txn = getTransaction(d.transactionId)
+                const txn = transactions.find((t) => t.id === d.transactionId)
                 const reason = getReason(d.reason)
                 return (
                   <tr

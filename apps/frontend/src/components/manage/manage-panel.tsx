@@ -1,8 +1,7 @@
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { Loader2, Search } from 'lucide-react'
-import { cancelDisputeAction, lookupDispute } from '../../lib/dispute-actions'
-import { formatAmount, formatTxnDate, getReason, getTransaction } from '../../lib/mock-data'
-import { useDisputeStore } from '../../lib/dispute-store'
+import { useDisputes, useTransactions, useCancelDispute } from '../../lib/queries'
+import { formatAmount, formatTxnDate, getReason } from '../../lib/mock-data'
 import { cn } from '../../lib/utils'
 import { card, microLabel } from '../../lib/ui'
 import { Button } from '../ui/button'
@@ -18,31 +17,39 @@ function formatFiledDate(iso: string) {
 }
 
 export function ManagePanel() {
-  const disputes = useDisputeStore((s) => s.disputes)
+  const { data: disputes = [], isLoading } = useDisputes()
+  const { data: transactions = [] } = useTransactions()
+  const cancelDispute = useCancelDispute()
+
   const [refInput, setRefInput] = useState('')
   const [selectedRef, setSelectedRef] = useState<string | null>(null)
-  const [error, setError] = useState('')
-  const [pending, startTransition] = useTransition()
+  const [searchError, setSearchError] = useState('')
 
   const activeRef = selectedRef ?? disputes[0]?.ref ?? null
   const dispute = disputes.find((d) => d.ref === activeRef) ?? null
-  const transaction = dispute ? getTransaction(dispute.transactionId) : undefined
+  const transaction = dispute ? transactions.find((t) => t.id === dispute.transactionId) : undefined
   const reason = dispute ? getReason(dispute.reason) : undefined
 
   function search() {
-    setError('')
-    startTransition(async () => {
-      const res = await lookupDispute(refInput)
-      if (res.ok) setSelectedRef(res.dispute.ref)
-      else setError(res.error)
-    })
+    setSearchError('')
+    const found = disputes.find(
+      (d) => d.ref.toLowerCase() === refInput.trim().toLowerCase(),
+    )
+    if (found) setSelectedRef(found.ref)
+    else setSearchError('No dispute found for that reference.')
   }
 
   function cancel() {
     if (!dispute) return
-    startTransition(async () => {
-      await cancelDisputeAction(dispute.ref)
-    })
+    cancelDispute.mutate(dispute.id)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -65,23 +72,19 @@ export function ManagePanel() {
               size="sm"
               className="shrink-0 shadow-md hover:shadow-lg"
               onClick={search}
-              disabled={pending || !refInput.trim()}
+              disabled={!refInput.trim()}
             >
-              {pending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Search className="h-3.5 w-3.5" />
-              )}
+              <Search className="h-3.5 w-3.5" />
               Find
             </Button>
           </div>
         </label>
-        {error && (
+        {searchError && (
           <p
             role="alert"
             className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
           >
-            {error}
+            {searchError}
           </p>
         )}
       </div>
@@ -109,7 +112,7 @@ export function ManagePanel() {
         ) : (
           <ul className={cn(card, 'overflow-hidden')}>
             {disputes.map((d) => {
-              const txn = getTransaction(d.transactionId)
+              const txn = transactions.find((t) => t.id === d.transactionId)
               const selected = d.ref === activeRef
               return (
                 <li key={d.ref} className="border-b border-border/30 last:border-b-0">
@@ -148,7 +151,7 @@ export function ManagePanel() {
           dispute={dispute}
           transaction={transaction}
           reason={reason}
-          pending={pending}
+          pending={cancelDispute.isPending}
           onCancel={cancel}
         />
       )}

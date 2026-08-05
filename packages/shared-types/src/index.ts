@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-// ---------- Enums ----------
-
 export const DisputeStatus = z.enum([
   "OPEN",
   "UNDER_REVIEW",
@@ -20,13 +18,10 @@ export const DisputeReason = z.enum([
 ]);
 export type DisputeReason = z.infer<typeof DisputeReason>;
 
-// ---------- Entities ----------
-
 export const TransactionSchema = z.object({
   id: z.string().uuid(),
   merchant: z.string(),
   amount: z.number(),
-  // YYYY-MM-DD date string (not a full ISO timestamp)
   currency: z.string().length(3),
   date: z.string().date(),
   category: z.string(),
@@ -35,7 +30,6 @@ export type Transaction = z.infer<typeof TransactionSchema>;
 
 export const DisputeSchema = z.object({
   id: z.string().uuid(),
-  // Human-readable reference shown to customers, e.g. "DP-2026-4821"
   ref: z.string(),
   transactionId: z.string().uuid(),
   reason: DisputeReason,
@@ -45,8 +39,6 @@ export const DisputeSchema = z.object({
   updatedAt: z.string().datetime(),
 });
 export type Dispute = z.infer<typeof DisputeSchema>;
-
-// ---------- Request payloads ----------
 
 export const CreateDisputeRequestSchema = z.object({
   transactionId: z.string().uuid(),

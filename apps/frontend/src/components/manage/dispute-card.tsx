@@ -1,6 +1,6 @@
 import { CalendarDays, Clock, MapPin, Phone, XCircle } from 'lucide-react'
-import type { Dispute } from '../../lib/dispute-store'
-import type { DisputeReasonOption, Transaction } from '../../lib/mock-data'
+import type { Dispute, Transaction } from '@dispute-portal/shared-types'
+import type { DisputeReasonOption } from '../../lib/mock-data'
 import { formatAmount, formatTxnDate } from '../../lib/mock-data'
 import { card } from '../../lib/ui'
 import { cn } from '../../lib/utils'
