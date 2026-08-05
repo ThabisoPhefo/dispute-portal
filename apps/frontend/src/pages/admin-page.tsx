@@ -22,15 +22,15 @@ export function AdminPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Dispute operations</h1>
           <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
             Staff view of all customer claims across transactions.
           </p>
         </div>
-        <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="max-w-full truncate rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           Demo data · refreshes on each claim
         </span>
       </div>

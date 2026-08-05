@@ -54,7 +54,7 @@ export function ManagePanel() {
 
   return (
     <div className="space-y-4">
-      <div className={cn(card, 'p-5')}>
+      <div className={cn(card, 'p-4 sm:p-5')}>
         <label className="block">
           <span className={cn(microLabel, 'mb-1.5 block')}>Claim reference</span>
           <div className="flex gap-2">
@@ -121,11 +121,11 @@ export function ManagePanel() {
                     onClick={() => setSelectedRef(d.ref)}
                     aria-pressed={selected}
                     className={cn(
-                      'flex w-full cursor-pointer items-start justify-between gap-3 px-4 py-3.5 text-left transition-colors duration-200 sm:px-5',
+                      'flex w-full cursor-pointer items-start justify-between gap-2 px-3 py-3 text-left transition-colors duration-200 sm:gap-3 sm:px-5 sm:py-3.5',
                       selected ? 'bg-secondary' : 'hover:bg-secondary/50',
                     )}
                   >
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold tabular-nums tracking-tight">{d.ref}</p>
                       <p className="mt-0.5 truncate text-xs text-muted-foreground">
                         {txn?.merchant ?? '—'}

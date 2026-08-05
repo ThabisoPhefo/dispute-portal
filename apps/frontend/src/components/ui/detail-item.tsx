@@ -17,7 +17,7 @@ export function DetailItem({
       </span>
       <div className="min-w-0">
         <dt className={microLabel}>{label}</dt>
-        <dd className="text-xs font-semibold leading-relaxed tracking-tight text-card-foreground break-words">
+        <dd className="wrap-break-word text-xs font-semibold leading-relaxed tracking-tight text-card-foreground">
           {value}
         </dd>
       </div>

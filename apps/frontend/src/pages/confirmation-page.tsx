@@ -27,8 +27,8 @@ export function ConfirmationPage() {
   const cancelled = dispute.status === 'CANCELLED'
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-      <div className={cn(card, 'p-6 sm:p-8')}>
+    <div className="mx-auto max-w-3xl px-3 py-6 sm:px-6 sm:py-12">
+      <div className={cn(card, 'p-4 sm:p-8')}>
         <div className="flex items-start gap-3">
           <CheckCircle2
             className={cancelled ? 'mt-0.5 h-5 w-5 text-destructive' : 'mt-0.5 h-5 w-5 text-foreground'}
@@ -127,7 +127,7 @@ function Notice({ icon, title, body }: { icon: ReactNode; title: string; body: s
       </span>
       <div>
         <p className="text-xs font-semibold tracking-tight text-card-foreground">{title}</p>
-        <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{body}</p>
+        <p className="mt-0.5 wrap-break-word text-[11px] leading-relaxed text-muted-foreground">{body}</p>
       </div>
     </div>
   )

@@ -1,21 +1,23 @@
 import { Link } from 'react-router-dom'
 import { CalendarCheck, ShieldCheck, Timer, Wallet } from 'lucide-react'
 import { DisputeFlow } from '../components/dispute/dispute-flow'
-import { TRANSACTIONS } from '../lib/mock-data'
+import { useTransactions } from '../lib/queries'
 import { card } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { buttonVariants } from '../components/ui/button-variants'
 import type { ReactNode } from 'react'
 
 export function HomePage() {
+  const { data: transactions = [] } = useTransactions()
+
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
+    <div className="mx-auto max-w-6xl px-3 pb-10 pt-6 sm:px-6 sm:pt-12">
       <section className="max-w-2xl">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-          <span className="h-1 w-1 rounded-full bg-foreground" aria-hidden="true" />
+        <span className="inline-flex max-w-full items-center gap-2 truncate rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="h-1 w-1 shrink-0 rounded-full bg-foreground" aria-hidden="true" />
           Transactions & disputes
         </span>
-        <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
+        <h1 className="mt-4 text-xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
           Something doesn&apos;t add up? Flag it in under a minute.
         </h1>
         <p className="mt-3 max-w-xl text-xs leading-relaxed text-muted-foreground text-pretty sm:text-sm">
@@ -24,7 +26,7 @@ export function HomePage() {
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Fact icon={<Timer className="h-3.5 w-3.5" />} label="Avg resolution 3 days" />
-          <Fact icon={<Wallet className="h-3.5 w-3.5" />} label={`${TRANSACTIONS.length} transactions`} />
+          <Fact icon={<Wallet className="h-3.5 w-3.5" />} label={`${transactions.length} transactions`} />
           <Fact icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Claims encrypted" />
         </div>
       </section>

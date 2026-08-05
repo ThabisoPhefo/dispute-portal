@@ -43,7 +43,7 @@ export function DisputeFlow() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_300px] lg:items-start">
-      <div className={cn(card, 'min-w-0 p-5 sm:p-6')}>
+      <div className={cn(card, 'min-w-0 p-4 sm:p-6')}>
         <StepperNav step={step} />
 
         {step === 0 && (
@@ -102,17 +102,19 @@ export function DisputeFlow() {
         </div>
       </div>
 
-      <ClaimSummary
-        merchant={transaction?.merchant}
-        amount={
-          transaction
-            ? formatAmount(transaction.amount, transaction.currency)
-            : undefined
-        }
-        reasonName={reasonOption?.name}
-        txnDate={transaction?.date}
-        step={step}
-      />
+      <div className="hidden lg:block">
+        <ClaimSummary
+          merchant={transaction?.merchant}
+          amount={
+            transaction
+              ? formatAmount(transaction.amount, transaction.currency)
+              : undefined
+          }
+          reasonName={reasonOption?.name}
+          txnDate={transaction?.date}
+          step={step}
+        />
+      </div>
     </div>
   )
 }

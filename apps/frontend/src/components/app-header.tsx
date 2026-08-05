@@ -26,10 +26,10 @@ export function AppHeader() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-40 px-4 pt-4 pb-3 sm:px-6">
+    <header className="sticky top-0 z-40 px-3 pt-3 pb-2.5 sm:px-6 sm:pt-4 sm:pb-3">
       <div
         className={cn(
-          'mx-auto flex max-w-6xl items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 sm:gap-8 sm:px-6',
+          'mx-auto flex max-w-6xl min-w-0 items-center gap-2 rounded-2xl px-3 py-2.5 transition-all duration-300 sm:gap-8 sm:px-6 sm:py-3',
           'border border-white/50 bg-white/45 shadow-[0_8px_32px_rgb(18_33_59/0.08)]',
           'backdrop-blur-md backdrop-saturate-150',
           'supports-backdrop-filter:bg-white/35',
@@ -42,7 +42,7 @@ export function AppHeader() {
           aria-label="Capitec home"
           className="flex shrink-0 items-center transition-opacity duration-200 hover:opacity-70"
         >
-          <span className="relative block h-5 w-29 overflow-hidden sm:h-5.5 sm:w-33">
+          <span className="relative block h-4.5 w-20 overflow-hidden sm:h-5.5 sm:w-33">
             <img
               src="/capitec-logo.png"
               alt="Capitec"
@@ -53,7 +53,7 @@ export function AppHeader() {
           </span>
         </Link>
 
-        <nav aria-label="Main" className="ml-auto flex items-center gap-1 sm:gap-1.5">
+        <nav aria-label="Main" className="ml-auto flex min-w-0 items-center gap-0.5 sm:gap-1.5">
           {NAV.map((item) => {
             const active = isActivePath(pathname, item.to)
             return (
@@ -61,8 +61,9 @@ export function AppHeader() {
                 key={item.to}
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
+                title={item.label}
                 className={cn(
-                  'cursor-pointer rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200 sm:px-4',
+                  'max-w-[5.25rem] truncate cursor-pointer rounded-full px-2 py-1.5 text-[10px] font-medium transition-all duration-200 sm:max-w-none sm:px-4 sm:py-2 sm:text-xs',
                   active
                     ? 'bg-foreground text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:bg-white/50 hover:text-foreground',
