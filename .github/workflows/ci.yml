@@ -53,6 +53,22 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: dispute_portal
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/dispute_portal
     steps:
       - uses: actions/checkout@v4
 
@@ -63,6 +79,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run database migrations
+        # cd first: npm workspaces nest the Prisma CLI bin under
+        # apps/backend/node_modules rather than hoisting it to the root,
+        # and npx only searches upward from cwd, not into subdirectories.
+        run: cd apps/backend && npx prisma migrate deploy
 
       - name: Test backend
         run: npm test -w apps/backend
