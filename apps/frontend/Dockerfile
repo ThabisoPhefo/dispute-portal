@@ -14,10 +14,12 @@ RUN npm ci
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+# Copy the whole deps output (root node_modules AND any workspace-nested
+# node_modules — npm workspaces don't always hoist every bin to the root)
+# before overlaying real source.
+COPY --from=deps /app ./
 COPY packages/shared-types ./packages/shared-types
 COPY apps/frontend ./apps/frontend
-COPY package.json ./
 
 # VITE_API_URL is injected at build time so the browser bundle knows the API URL
 ARG VITE_API_URL=http://localhost:3001

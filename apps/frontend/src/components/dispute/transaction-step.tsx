@@ -91,8 +91,8 @@ export function TransactionStep({
         </div>
       </div>
 
-      {view === 'cards' ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      {view === 'cards' && (
+        <div className="mt-4 hidden gap-3 sm:grid sm:grid-cols-2">
           {pageItems.map((t, i) => (
             <TransactionCard
               key={t.id}
@@ -103,58 +103,63 @@ export function TransactionStep({
             />
           ))}
         </div>
-      ) : (
-        <div className="mt-4 -mx-1 overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b border-border/40 text-left text-[10px] uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2.5 font-medium">Date</th>
-                <th className="px-3 py-2.5 font-medium">Merchant</th>
-                <th className="px-3 py-2.5 text-right font-medium">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="text-xs">
-              {pageItems.map((t) => {
-                const selected = transactionId === t.id
-                return (
-                  <tr
-                    key={t.id}
-                    onClick={() => onSelect(t.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        onSelect(t.id)
-                      }
-                    }}
-                    tabIndex={0}
-                    role="button"
-                    aria-pressed={selected}
-                    className={cn(
-                      'cursor-pointer border-b border-border/30 transition-colors duration-200 last:border-b-0',
-                      selected
-                        ? 'bg-secondary'
-                        : 'hover:bg-secondary/50',
-                    )}
-                  >
-                    <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
-                      {formatTxnDate(t.date)}
-                    </td>
-                    <td className="px-3 py-3">
-                      <span className="block font-semibold tracking-tight text-card-foreground">
-                        {t.merchant}
-                      </span>
-                      <span className="block text-[11px] text-muted-foreground">{t.category}</span>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-right font-medium tabular-nums">
-                      {formatAmount(t.amount, t.currency)}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
       )}
+
+      <div
+        className={cn(
+          'mt-4 -mx-1 overflow-x-auto',
+          view === 'cards' && 'sm:hidden',
+        )}
+      >
+        <table className="w-full">
+          <thead className="border-b border-border/40 text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="px-2 py-2.5 font-medium sm:px-3">Date</th>
+              <th className="px-2 py-2.5 font-medium sm:px-3">Merchant</th>
+              <th className="px-2 py-2.5 text-right font-medium sm:px-3">Amount</th>
+            </tr>
+          </thead>
+          <tbody className="text-xs">
+            {pageItems.map((t) => {
+              const selected = transactionId === t.id
+              return (
+                <tr
+                  key={t.id}
+                  onClick={() => onSelect(t.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onSelect(t.id)
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={selected}
+                  className={cn(
+                    'cursor-pointer border-b border-border/30 transition-colors duration-200 last:border-b-0',
+                    selected
+                      ? 'bg-secondary'
+                      : 'hover:bg-secondary/50',
+                  )}
+                >
+                  <td className="whitespace-nowrap px-2 py-3 tabular-nums text-muted-foreground sm:px-3">
+                    {formatTxnDate(t.date)}
+                  </td>
+                  <td className="min-w-0 px-2 py-3 sm:px-3">
+                    <span className="block truncate font-semibold tracking-tight text-card-foreground">
+                      {t.merchant}
+                    </span>
+                    <span className="block truncate text-[11px] text-muted-foreground">{t.category}</span>
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-3 text-right font-medium tabular-nums sm:px-3">
+                    {formatAmount(t.amount, t.currency)}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
 
       <div className="mt-5 flex items-center justify-between gap-3">
         <button
@@ -191,7 +196,7 @@ function TransactionCard({
   selected: boolean
   onSelect: (id: string) => void
   delay: number
-})  {
+}) {
   return (
     <button
       type="button"
