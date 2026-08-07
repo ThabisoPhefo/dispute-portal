@@ -22,6 +22,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        # No postinstall hook runs this automatically, and `tsc` needs the
+        # generated @prisma/client types to typecheck the backend.
+        run: npm run db:generate
+
       - name: Typecheck shared-types
         run: npm run typecheck -w packages/shared-types
 
@@ -80,11 +85,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        # No postinstall hook runs this automatically; the test suite
+        # imports @prisma/client, which doesn't exist until generated.
+        run: npm run db:generate
+
       - name: Run database migrations
-        # cd first: npm workspaces nest the Prisma CLI bin under
-        # apps/backend/node_modules rather than hoisting it to the root,
-        # and npx only searches upward from cwd, not into subdirectories.
-        run: cd apps/backend && npx prisma migrate deploy
+        run: npm run db:migrate:deploy
 
       - name: Test backend
         run: npm test -w apps/backend

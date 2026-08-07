@@ -14,13 +14,19 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "prisma generate --schema=apps/backend/prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=apps/backend/prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "prisma": "^6.19.3",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
   }
 }

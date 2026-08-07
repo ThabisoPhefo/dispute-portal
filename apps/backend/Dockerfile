@@ -15,15 +15,12 @@ RUN npm ci
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copy the whole deps output (root node_modules AND any workspace-nested
-# node_modules, e.g. apps/backend/node_modules/.bin/prisma — npm workspaces
-# don't always hoist every bin to the root) before overlaying real source.
 COPY --from=deps /app ./
 COPY packages/shared-types ./packages/shared-types
 COPY apps/backend ./apps/backend
 
-# Generate the Prisma client (output lands inside node_modules/.prisma)
-RUN cd apps/backend && npx prisma generate
+# Generate the Prisma client.
+RUN npm run db:generate
 
 # Compile TypeScript → dist/
 RUN npm run build -w apps/backend
@@ -33,17 +30,12 @@ FROM node:22-alpine AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Copy the full builder output as-is. npm workspaces nest some packages
-# (e.g. the Prisma CLI/client) under apps/backend/node_modules instead of
-# hoisting to the root, so a partial re-install/copy is error-prone — and
-# `prisma migrate deploy` at container start needs the (devDependency)
-# Prisma CLI anyway, which a `--omit=dev` install would strip out.
+# Copy the full builder output as-is — `prisma migrate deploy` at container
+# start needs the Prisma CLI, which is a devDependency and would be
+# stripped out by a `--omit=dev` reinstall.
 COPY --from=builder /app ./
 
 EXPOSE 3001
 
 # Run pending migrations then start the server.
-# `cd` first: the Prisma CLI bin is nested under apps/backend/node_modules
-# (npm workspaces don't hoist it to the root), and npx only searches upward
-# from cwd, not into subdirectories.
-CMD ["sh", "-c", "cd apps/backend && npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "npm run db:migrate:deploy && node apps/backend/dist/index.js"]
