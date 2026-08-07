@@ -22,6 +22,16 @@ const transactions = [
   { id: '11111111-1111-4111-8111-111111111013', merchant: 'Bolt', amount: 65.2, currency: 'ZAR', date: new Date('2026-08-02'), category: 'Transport' },
   { id: '11111111-1111-4111-8111-111111111014', merchant: 'Clicks', amount: 156.75, currency: 'ZAR', date: new Date('2026-08-03'), category: 'Health' },
   { id: '11111111-1111-4111-8111-111111111015', merchant: 'Steers', amount: 98.5, currency: 'ZAR', date: new Date('2026-08-03'), category: 'Dining' },
+  { id: '11111111-1111-4111-8111-111111111016', merchant: 'Game', amount: 2499, currency: 'ZAR', date: new Date('2026-08-04'), category: 'Retail' },
+  { id: '11111111-1111-4111-8111-111111111017', merchant: 'KFC', amount: 142.9, currency: 'ZAR', date: new Date('2026-08-04'), category: 'Dining' },
+  { id: '11111111-1111-4111-8111-111111111018', merchant: 'DSTV', amount: 899, currency: 'ZAR', date: new Date('2026-08-05'), category: 'Subscriptions' },
+  { id: '11111111-1111-4111-8111-111111111019', merchant: 'TotalEnergies', amount: 580, currency: 'ZAR', date: new Date('2026-08-05'), category: 'Fuel' },
+  { id: '11111111-1111-4111-8111-111111111020', merchant: 'Exclusive Books', amount: 329.5, currency: 'ZAR', date: new Date('2026-08-05'), category: 'Retail' },
+  { id: '11111111-1111-4111-8111-111111111021', merchant: 'Uber Eats', amount: 215.4, currency: 'ZAR', date: new Date('2026-08-06'), category: 'Dining' },
+  { id: '11111111-1111-4111-8111-111111111022', merchant: 'Apple', amount: 119.99, currency: 'ZAR', date: new Date('2026-08-06'), category: 'Subscriptions' },
+  { id: '11111111-1111-4111-8111-111111111023', merchant: 'Builders Warehouse', amount: 1675, currency: 'ZAR', date: new Date('2026-08-06'), category: 'Wholesale' },
+  { id: '11111111-1111-4111-8111-111111111024', merchant: 'ABSA ATM', amount: 500, currency: 'ZAR', date: new Date('2026-08-07'), category: 'Cash' },
+  { id: '11111111-1111-4111-8111-111111111025', merchant: 'Superbalist', amount: 789, currency: 'ZAR', date: new Date('2026-08-07'), category: 'Online shopping' },
 ]
 
 const disputes = [
@@ -68,18 +78,27 @@ const disputes = [
 ]
 
 async function main() {
-  await prisma.dispute.deleteMany()
-  await prisma.transaction.deleteMany()
-
   for (const txn of transactions) {
-    await prisma.transaction.create({ data: txn })
+    const { id, ...rest } = txn
+    await prisma.transaction.upsert({
+      where: { id },
+      create: txn,
+      update: rest,
+    })
   }
 
   for (const dispute of disputes) {
-    await prisma.dispute.create({ data: dispute })
+    const { id, ...rest } = dispute
+    await prisma.dispute.upsert({
+      where: { id },
+      create: dispute,
+      update: rest,
+    })
   }
 
-  console.log(`Seeded ${transactions.length} transactions and ${disputes.length} disputes`)
+  console.log(
+    `Upserted ${transactions.length} transactions and ${disputes.length} sample disputes (user-created disputes are kept)`,
+  )
 }
 
 main()

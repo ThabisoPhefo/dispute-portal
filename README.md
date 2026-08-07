@@ -61,7 +61,9 @@ npx prisma db seed
 cd ../..
 ```
 
-You should see something like: `Seeded 15 transactions and 4 disputes`.
+You should see something like: `Upserted 25 transactions and 4 sample disputes...`.
+
+The seed uses upserts (not a full wipe), so disputes you create in the UI are kept if you re-seed later.
 
 ### 4. Start the app
 
@@ -147,6 +149,7 @@ docker-compose.yml
 | Symptom | Likely fix |
 |---|---|
 | Empty transactions / disputes in UI | Seed the DB, or set `VITE_USE_MSW=false` and ensure backend is running |
+| Created disputes disappear after seed | Older seed wiped the DB; current seed upserts and keeps user-created disputes. Restarting the backend alone does **not** clear Postgres |
 | Vite `http proxy error` / `ECONNREFUSED` | Start `npm run dev:backend` (frontend is proxying `/api` → `:3001`) |
 | Prisma connection errors | Check `DATABASE_URL` username/db name; confirm Postgres is running |
 | Port 5432 already in use with Docker | Compose uses host port **5433** by design to avoid clashing with local Postgres |
