@@ -1,4 +1,4 @@
-import { REASONS } from '../../lib/mock-data'
+import { REASONS } from '../../lib/dispute-reasons'
 import { cn } from '../../lib/utils'
 import { selectableCard } from '../../lib/ui'
 

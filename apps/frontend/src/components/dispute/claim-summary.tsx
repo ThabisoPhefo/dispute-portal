@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/utils'
-import { formatTxnDate } from '../../lib/mock-data'
+import { formatTxnDate } from '../../lib/format'
 
 function ClaimRow({ label, value }: { label: string; value?: string }) {
   return (

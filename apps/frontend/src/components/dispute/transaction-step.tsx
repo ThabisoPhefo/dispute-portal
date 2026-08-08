@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, LayoutGrid, List, Loader2 } from 'lucide-react'
 import type { Transaction } from '@dispute-portal/shared-types'
-import { formatAmount, formatTxnDate } from '../../lib/mock-data'
+import { formatAmount, formatTxnDate } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import { selectableCard } from '../../lib/ui'
 
