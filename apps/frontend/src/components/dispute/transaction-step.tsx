@@ -3,25 +3,30 @@ import { ChevronLeft, ChevronRight, LayoutGrid, List, Loader2 } from 'lucide-rea
 import type { Transaction } from '@dispute-portal/shared-types'
 import { formatAmount, formatTxnDate } from '../../lib/format'
 import { cn } from '../../lib/utils'
-import { selectableCard } from '../../lib/ui'
+import { loadingState, selectableCard } from '../../lib/ui'
+import { QueryErrorState } from '../ui/query-error-state'
 
 const PAGE_SIZE = 6
 
-type ViewMode = 'cards' | 'list'
+type TransactionLayout = 'cards' | 'list'
 
 export function TransactionStep({
   transactions,
   isLoading,
+  errorMessage,
+  onRetry,
   transactionId,
   onSelect,
 }: {
   transactions: Transaction[]
   isLoading?: boolean
+  errorMessage?: string
+  onRetry?: () => void
   transactionId: string
   onSelect: (id: string) => void
 }) {
   const [page, setPage] = useState(0)
-  const [view, setView] = useState<ViewMode>('list')
+  const [layout, setLayout] = useState<TransactionLayout>('list')
   const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE))
   const start = page * PAGE_SIZE
   const pageItems = transactions.slice(start, start + PAGE_SIZE)
@@ -30,9 +35,19 @@ export function TransactionStep({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12 text-muted-foreground">
+      <div className={cn(loadingState, 'py-12')}>
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
+    )
+  }
+
+  if (errorMessage) {
+    return (
+      <QueryErrorState
+        title="We couldn't load your transactions"
+        message={errorMessage}
+        onRetry={onRetry}
+      />
     )
   }
 
@@ -51,22 +66,22 @@ export function TransactionStep({
         <div
           className="relative hidden grid-cols-2 rounded-lg bg-secondary/60 p-0.5 sm:inline-grid"
           role="group"
-          aria-label="View mode"
+          aria-label="Transaction layout"
         >
           <span
             aria-hidden
             className={cn(
               'absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-md bg-foreground shadow-sm transition-transform duration-300 ease-out',
-              view === 'cards' && 'translate-x-full',
+              layout === 'cards' && 'translate-x-full',
             )}
           />
           <button
             type="button"
-            onClick={() => setView('list')}
-            aria-pressed={view === 'list'}
+            onClick={() => setLayout('list')}
+            aria-pressed={layout === 'list'}
             className={cn(
               'relative z-10 inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors duration-200',
-              view === 'list'
+              layout === 'list'
                 ? 'text-primary-foreground'
                 : 'text-muted-foreground hover:text-foreground',
             )}
@@ -76,11 +91,11 @@ export function TransactionStep({
           </button>
           <button
             type="button"
-            onClick={() => setView('cards')}
-            aria-pressed={view === 'cards'}
+            onClick={() => setLayout('cards')}
+            aria-pressed={layout === 'cards'}
             className={cn(
               'relative z-10 inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors duration-200',
-              view === 'cards'
+              layout === 'cards'
                 ? 'text-primary-foreground'
                 : 'text-muted-foreground hover:text-foreground',
             )}
@@ -91,15 +106,15 @@ export function TransactionStep({
         </div>
       </div>
 
-      {view === 'cards' && (
+      {layout === 'cards' && (
         <div className="mt-4 hidden gap-3 sm:grid sm:grid-cols-2">
-          {pageItems.map((t, i) => (
+          {pageItems.map((transaction, index) => (
             <TransactionCard
-              key={t.id}
-              transaction={t}
-              selected={transactionId === t.id}
+              key={transaction.id}
+              transaction={transaction}
+              selected={transactionId === transaction.id}
               onSelect={onSelect}
-              delay={i * 60}
+              delay={index * 60}
             />
           ))}
         </div>
@@ -108,7 +123,7 @@ export function TransactionStep({
       <div
         className={cn(
           'mt-4 -mx-1 overflow-x-auto',
-          view === 'cards' && 'sm:hidden',
+          layout === 'cards' && 'sm:hidden',
         )}
       >
         <table className="w-full">
@@ -120,16 +135,16 @@ export function TransactionStep({
             </tr>
           </thead>
           <tbody className="text-xs">
-            {pageItems.map((t) => {
-              const selected = transactionId === t.id
+            {pageItems.map((transaction) => {
+              const selected = transactionId === transaction.id
               return (
                 <tr
-                  key={t.id}
-                  onClick={() => onSelect(t.id)}
+                  key={transaction.id}
+                  onClick={() => onSelect(transaction.id)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      onSelect(t.id)
+                      onSelect(transaction.id)
                     }
                   }}
                   tabIndex={0}
@@ -137,22 +152,22 @@ export function TransactionStep({
                   aria-pressed={selected}
                   className={cn(
                     'cursor-pointer border-b border-border/30 transition-colors duration-200 last:border-b-0',
-                    selected
-                      ? 'bg-secondary'
-                      : 'hover:bg-secondary/50',
+                    selected ? 'bg-secondary' : 'hover:bg-secondary/50',
                   )}
                 >
                   <td className="whitespace-nowrap px-2 py-3 tabular-nums text-muted-foreground sm:px-3">
-                    {formatTxnDate(t.date)}
+                    {formatTxnDate(transaction.date)}
                   </td>
                   <td className="min-w-0 px-2 py-3 sm:px-3">
                     <span className="block truncate font-semibold tracking-tight text-card-foreground">
-                      {t.merchant}
+                      {transaction.merchant}
                     </span>
-                    <span className="block truncate text-[11px] text-muted-foreground">{t.category}</span>
+                    <span className="block truncate text-[11px] text-muted-foreground">
+                      {transaction.category}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap px-2 py-3 text-right font-medium tabular-nums sm:px-3">
-                    {formatAmount(t.amount, t.currency)}
+                    {formatAmount(transaction.amount, transaction.currency)}
                   </td>
                 </tr>
               )
@@ -164,7 +179,7 @@ export function TransactionStep({
       <div className="mt-5 flex items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          onClick={() => setPage((current) => Math.max(0, current - 1))}
           disabled={page === 0}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
         >
@@ -175,7 +190,7 @@ export function TransactionStep({
         </p>
         <button
           type="button"
-          onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+          onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
           disabled={page >= totalPages - 1}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
         >
@@ -187,7 +202,7 @@ export function TransactionStep({
 }
 
 function TransactionCard({
-  transaction: t,
+  transaction,
   selected,
   onSelect,
   delay,
@@ -200,7 +215,7 @@ function TransactionCard({
   return (
     <button
       type="button"
-      onClick={() => onSelect(t.id)}
+      onClick={() => onSelect(transaction.id)}
       style={{ animationDelay: `${delay}ms` }}
       className={cn(
         'animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300',
@@ -209,11 +224,13 @@ function TransactionCard({
       )}
     >
       <span className="block text-sm font-semibold tracking-tight text-card-foreground">
-        {t.merchant}
+        {transaction.merchant}
       </span>
-      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{t.category}</span>
+      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+        {transaction.category}
+      </span>
       <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-        {formatTxnDate(t.date)} · {formatAmount(t.amount, t.currency)}
+        {formatTxnDate(transaction.date)} · {formatAmount(transaction.amount, transaction.currency)}
       </span>
     </button>
   )

@@ -3,22 +3,30 @@ import { Loader2, Search } from 'lucide-react'
 import { useDisputes, useTransactions, useCancelDispute } from '../../lib/queries'
 import { formatFiledDate } from '../../lib/format'
 import { getDisputeDisplay } from '../../lib/dispute-display'
+import { getErrorMessage } from '../../lib/error-message'
 import { cn } from '../../lib/utils'
 import {
   card,
   formControl,
-  formError,
   microLabel,
   sectionLead,
   sectionTitle,
   loadingState,
 } from '../../lib/ui'
 import { Button } from '../ui/button'
+import { InlineError } from '../ui/inline-error'
+import { QueryErrorState } from '../ui/query-error-state'
 import { StatusBadge } from '../ui/status-badge'
 import { DisputeCard } from './dispute-card'
 
 export function ManagePanel() {
-  const { data: disputes = [], isLoading } = useDisputes()
+  const {
+    data: disputes = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useDisputes()
   const { data: transactions = [] } = useTransactions()
   const cancelDispute = useCancelDispute()
 
@@ -52,6 +60,21 @@ export function ManagePanel() {
     )
   }
 
+  if (isError) {
+    return (
+        <QueryErrorState
+          title="We couldn't load your disputes"
+          message={getErrorMessage(
+            error,
+            'Please try again in a moment.',
+          )}
+          onRetry={() => {
+            void refetch()
+          }}
+        />
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className={cn(card, 'p-4 sm:p-5')}>
@@ -79,11 +102,7 @@ export function ManagePanel() {
             </Button>
           </div>
         </label>
-        {searchError && (
-          <p role="alert" className={cn(formError, 'mt-3')}>
-            {searchError}
-          </p>
-        )}
+        <InlineError message={searchError} className="mt-3" />
       </div>
 
       <section aria-labelledby="dispute-history">
@@ -149,6 +168,7 @@ export function ManagePanel() {
           transaction={display.transaction}
           reason={display.reason}
           pending={cancelDispute.isPending}
+          errorMessage={getErrorMessage(cancelDispute.error, '')}
           onCancel={cancel}
         />
       )}

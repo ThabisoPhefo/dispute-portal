@@ -5,6 +5,7 @@ import { formatAmount, formatTxnDate } from '../../lib/format'
 import { card } from '../../lib/ui'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/button'
+import { InlineError } from '../ui/inline-error'
 import { StatusBadge } from '../ui/status-badge'
 import { DetailItem } from '../ui/detail-item'
 
@@ -13,12 +14,14 @@ export function DisputeCard({
   transaction,
   reason,
   pending,
+  errorMessage = '',
   onCancel,
 }: {
   dispute: Dispute
   transaction: Transaction | undefined
   reason: DisputeReasonOption | undefined
   pending: boolean
+  errorMessage?: string
   onCancel: () => void
 }) {
   const active = dispute.status !== 'CANCELLED'
@@ -71,6 +74,7 @@ export function DisputeCard({
           >
             <XCircle className="h-3.5 w-3.5" /> Cancel dispute
           </Button>
+          <InlineError message={errorMessage} className="mt-3" />
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
             Cancelling closes this claim immediately.
           </p>

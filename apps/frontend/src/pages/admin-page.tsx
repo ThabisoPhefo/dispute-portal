@@ -3,9 +3,12 @@ import { CalendarDays, CircleSlash, Loader2, Users } from 'lucide-react'
 import type { DisputeStatus } from '@dispute-portal/shared-types'
 import { useDisputes, useTransactions, useUpdateDisputeStatus } from '../lib/queries'
 import { getDisputeDisplay } from '../lib/dispute-display'
+import { getErrorMessage } from '../lib/error-message'
 import { getStatusLabel } from '../lib/dispute-utils'
 import { card, eyebrowPill, formControl, loadingState, microLabel } from '../lib/ui'
 import { cn } from '../lib/utils'
+import { InlineError } from '../components/ui/inline-error'
+import { QueryErrorState } from '../components/ui/query-error-state'
 import { StatusBadge } from '../components/ui/status-badge'
 
 const STAFF_STATUSES: DisputeStatus[] = [
@@ -17,7 +20,13 @@ const STAFF_STATUSES: DisputeStatus[] = [
 ]
 
 export function AdminPage() {
-  const { data: disputes = [], isLoading } = useDisputes()
+  const {
+    data: disputes = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useDisputes()
   const { data: transactions = [] } = useTransactions()
   const updateStatus = useUpdateDisputeStatus()
 
@@ -31,6 +40,20 @@ export function AdminPage() {
     return (
       <div className={cn(loadingState, 'py-24')}>
         <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-12">
+        <QueryErrorState
+          title="We couldn't load disputes"
+          message={getErrorMessage(error, 'Please try again in a moment.')}
+          onRetry={() => {
+            void refetch()
+          }}
+        />
       </div>
     )
   }
@@ -63,14 +86,10 @@ export function AdminPage() {
         />
       </div>
 
-      {updateStatus.isError && (
-        <p
-          role="alert"
-          className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
-        >
-          {updateStatus.error.message}
-        </p>
-      )}
+      <InlineError
+        message={getErrorMessage(updateStatus.error, '')}
+        className="mt-4"
+      />
 
       <div className={cn(card, 'mt-6 overflow-hidden')}>
         <div className="overflow-x-auto">

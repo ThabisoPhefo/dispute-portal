@@ -1,5 +1,6 @@
 import { cn } from '../../lib/utils'
-import { formControl, formError, microLabel, sectionLead, sectionTitle } from '../../lib/ui'
+import { formControl, microLabel, sectionLead, sectionTitle } from '../../lib/ui'
+import { InlineError } from '../ui/inline-error'
 
 export type DetailsForm = {
   description: string
@@ -34,11 +35,7 @@ export function DetailsStep({
           />
         </label>
       </div>
-      {error && (
-        <p role="alert" className={cn(formError, 'mt-4')}>
-          {error}
-        </p>
-      )}
+      <InlineError message={error} className="mt-4" />
     </section>
   )
 }

@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { useTransactions, useCreateDispute } from '../../lib/queries'
 import { formatAmount } from '../../lib/format'
 import { getReason } from '../../lib/dispute-reasons'
+import { getErrorMessage } from '../../lib/error-message'
 import { card } from '../../lib/ui'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/button'
@@ -15,7 +16,13 @@ import { ClaimSummary } from './claim-summary'
 
 export function DisputeFlow() {
   const navigate = useNavigate()
-  const { data: transactions = [], isLoading: txnLoading } = useTransactions()
+  const {
+    data: transactions = [],
+    isLoading: txnLoading,
+    isError: txnError,
+    error: txnErrorValue,
+    refetch: refetchTransactions,
+  } = useTransactions()
   const createDispute = useCreateDispute()
 
   const [step, setStep] = useState(0)
@@ -23,7 +30,7 @@ export function DisputeFlow() {
   const [reason, setReason] = useState('')
   const [form, setForm] = useState<DetailsForm>({ description: '' })
 
-  const transaction = transactions.find((t) => t.id === transactionId)
+  const transaction = transactions.find((item) => item.id === transactionId)
   const reasonOption = getReason(reason)
   const pending = createDispute.isPending
 
@@ -37,7 +44,6 @@ export function DisputeFlow() {
       { transactionId, reason: reason as never, description: form.description },
       {
         onSuccess: (dispute) => navigate(`/confirmation/${dispute.ref}`),
-        onError: (err) => console.error(err),
       },
     )
   }
@@ -51,6 +57,14 @@ export function DisputeFlow() {
           <TransactionStep
             transactions={transactions}
             isLoading={txnLoading}
+            errorMessage={
+              txnError
+                ? getErrorMessage(txnErrorValue, 'Please try again in a moment.')
+                : undefined
+            }
+            onRetry={() => {
+              void refetchTransactions()
+            }}
             transactionId={transactionId}
             onSelect={setTransactionId}
           />
@@ -59,8 +73,8 @@ export function DisputeFlow() {
         {step === 2 && (
           <DetailsStep
             form={form}
-            error={createDispute.error?.message ?? ''}
-            onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
+            error={getErrorMessage(createDispute.error, '')}
+            onChange={(patch) => setForm((current) => ({ ...current, ...patch }))}
           />
         )}
 
@@ -69,7 +83,7 @@ export function DisputeFlow() {
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            onClick={() => setStep((current) => Math.max(0, current - 1))}
             disabled={step === 0 || pending}
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back
@@ -79,8 +93,8 @@ export function DisputeFlow() {
               type="button"
               size="sm"
               className="shadow-md hover:shadow-lg"
-              onClick={() => setStep((s) => s + 1)}
-              disabled={!canContinue}
+              onClick={() => setStep((current) => current + 1)}
+              disabled={!canContinue || txnError}
             >
               Continue <ArrowRight className="h-3.5 w-3.5" />
             </Button>

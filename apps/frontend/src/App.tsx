@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { AppErrorBoundary } from './components/app-error-boundary'
 import { AppHeader } from './components/app-header'
 import { SiteFooter } from './components/site-footer'
 import { HomePage } from './pages/home-page'
@@ -35,21 +36,23 @@ export default function App() {
         <div className="flex min-h-svh flex-col">
           <AppHeader />
           <main className="flex-1">
-            <Routes>
-              <Route element={<RequireView mode="customer" redirectTo="/staff" />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/disputes" element={<ManagePage />} />
-                <Route path="/confirmation/:ref" element={<ConfirmationPage />} />
-              </Route>
+            <AppErrorBoundary>
+              <Routes>
+                <Route element={<RequireView mode="customer" redirectTo="/staff" />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/disputes" element={<ManagePage />} />
+                  <Route path="/confirmation/:ref" element={<ConfirmationPage />} />
+                </Route>
 
-              <Route element={<RequireView mode="staff" redirectTo="/" />}>
-                <Route path="/staff" element={<AdminPage />} />
-              </Route>
+                <Route element={<RequireView mode="staff" redirectTo="/" />}>
+                  <Route path="/staff" element={<AdminPage />} />
+                </Route>
 
-              <Route path="/manage" element={<Navigate to="/disputes" replace />} />
-              <Route path="/admin" element={<Navigate to="/staff" replace />} />
-              <Route path="*" element={<HomeRedirect />} />
-            </Routes>
+                <Route path="/manage" element={<Navigate to="/disputes" replace />} />
+                <Route path="/admin" element={<Navigate to="/staff" replace />} />
+                <Route path="*" element={<HomeRedirect />} />
+              </Routes>
+            </AppErrorBoundary>
           </main>
           <SiteFooter />
         </div>
