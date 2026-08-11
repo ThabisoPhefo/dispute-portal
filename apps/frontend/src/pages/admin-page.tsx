@@ -1,15 +1,29 @@
 import type { ReactNode } from 'react'
 import { CalendarDays, CircleSlash, Loader2, Users } from 'lucide-react'
-import { useDisputes, useTransactions } from '../lib/queries'
+import type { DisputeStatus } from '@dispute-portal/shared-types'
+import { useDisputes, useTransactions, useUpdateDisputeStatus } from '../lib/queries'
 import { getDisputeDisplay } from '../lib/dispute-display'
-import { card, eyebrowPill, loadingState, microLabel } from '../lib/ui'
+import { getStatusLabel } from '../lib/dispute-utils'
+import { card, eyebrowPill, formControl, loadingState, microLabel } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { StatusBadge } from '../components/ui/status-badge'
+
+const STAFF_STATUSES: DisputeStatus[] = [
+  'OPEN',
+  'UNDER_REVIEW',
+  'APPROVED',
+  'REJECTED',
+  'CANCELLED',
+]
 
 export function AdminPage() {
   const { data: disputes = [], isLoading } = useDisputes()
   const { data: transactions = [] } = useTransactions()
-  const open = disputes.filter((dispute) => dispute.status === 'OPEN' || dispute.status === 'UNDER_REVIEW')
+  const updateStatus = useUpdateDisputeStatus()
+
+  const open = disputes.filter(
+    (dispute) => dispute.status === 'OPEN' || dispute.status === 'UNDER_REVIEW',
+  )
   const underReview = disputes.filter((dispute) => dispute.status === 'UNDER_REVIEW')
   const cancelled = disputes.filter((dispute) => dispute.status === 'CANCELLED')
 
@@ -27,7 +41,7 @@ export function AdminPage() {
         <div className="min-w-0">
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Dispute operations</h1>
           <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-            Staff view of all customer claims across transactions.
+            Review claims and update their status.
           </p>
         </div>
         <span className={cn(eyebrowPill, 'max-w-full truncate')}>
@@ -37,9 +51,26 @@ export function AdminPage() {
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <Stat icon={<Users className="h-4 w-4" />} label="Open claims" value={open.length} />
-        <Stat icon={<CalendarDays className="h-4 w-4" />} label="Under review" value={underReview.length} />
-        <Stat icon={<CircleSlash className="h-4 w-4" />} label="Cancelled" value={cancelled.length} />
+        <Stat
+          icon={<CalendarDays className="h-4 w-4" />}
+          label="Under review"
+          value={underReview.length}
+        />
+        <Stat
+          icon={<CircleSlash className="h-4 w-4" />}
+          label="Cancelled"
+          value={cancelled.length}
+        />
       </div>
+
+      {updateStatus.isError && (
+        <p
+          role="alert"
+          className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+        >
+          {updateStatus.error.message}
+        </p>
+      )}
 
       <div className={cn(card, 'mt-6 overflow-hidden')}>
         <div className="overflow-x-auto">
@@ -52,11 +83,15 @@ export function AdminPage() {
                 <th className="px-4 py-2.5 font-medium">Amount</th>
                 <th className="px-4 py-2.5 font-medium">When</th>
                 <th className="px-4 py-2.5 font-medium">Status</th>
+                <th className="px-4 py-2.5 font-medium">Update</th>
               </tr>
             </thead>
             <tbody className="text-xs">
               {disputes.map((dispute) => {
                 const display = getDisputeDisplay(dispute, transactions)
+                const isUpdating =
+                  updateStatus.isPending && updateStatus.variables?.id === dispute.id
+
                 return (
                   <tr
                     key={dispute.ref}
@@ -82,6 +117,30 @@ export function AdminPage() {
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={dispute.status} className="whitespace-nowrap" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex min-w-40 items-center gap-2">
+                        <select
+                          aria-label={`Update status for ${dispute.ref}`}
+                          value={dispute.status}
+                          disabled={isUpdating}
+                          onChange={(event) => {
+                            const status = event.target.value as DisputeStatus
+                            if (status === dispute.status) return
+                            updateStatus.mutate({ id: dispute.id, status })
+                          }}
+                          className={cn(formControl, 'cursor-pointer py-1.5 disabled:opacity-50')}
+                        >
+                          {STAFF_STATUSES.map((status) => (
+                            <option key={status} value={status}>
+                              {getStatusLabel(status)}
+                            </option>
+                          ))}
+                        </select>
+                        {isUpdating && (
+                          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )

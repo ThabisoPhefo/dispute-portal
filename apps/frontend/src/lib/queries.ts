@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { CreateDisputeRequest } from '@dispute-portal/shared-types'
+import type { CreateDisputeRequest, DisputeStatus } from '@dispute-portal/shared-types'
 import {
   fetchTransactions,
   fetchDisputes,
@@ -46,6 +46,18 @@ export function useCancelDispute() {
     mutationFn: (id: string) => updateDisputeStatus(id, { status: 'CANCELLED' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.disputes })
+    },
+  })
+}
+
+export function useUpdateDisputeStatus() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: DisputeStatus }) =>
+      updateDisputeStatus(id, { status }),
+    onSuccess: (dispute) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.disputes })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dispute(dispute.ref) })
     },
   })
 }
