@@ -1,22 +1,21 @@
 import type { ReactNode } from 'react'
 import { CalendarDays, CircleSlash, Loader2, Users } from 'lucide-react'
 import { useDisputes, useTransactions } from '../lib/queries'
-import { formatAmount, formatTxnDate } from '../lib/format'
-import { getReason } from '../lib/dispute-reasons'
-import { card } from '../lib/ui'
+import { getDisputeDisplay } from '../lib/dispute-display'
+import { card, eyebrowPill, loadingState, microLabel } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { StatusBadge } from '../components/ui/status-badge'
 
 export function AdminPage() {
   const { data: disputes = [], isLoading } = useDisputes()
   const { data: transactions = [] } = useTransactions()
-  const open = disputes.filter((d) => d.status === 'OPEN' || d.status === 'UNDER_REVIEW')
-  const underReview = disputes.filter((d) => d.status === 'UNDER_REVIEW')
-  const cancelled = disputes.filter((d) => d.status === 'CANCELLED')
+  const open = disputes.filter((dispute) => dispute.status === 'OPEN' || dispute.status === 'UNDER_REVIEW')
+  const underReview = disputes.filter((dispute) => dispute.status === 'UNDER_REVIEW')
+  const cancelled = disputes.filter((dispute) => dispute.status === 'CANCELLED')
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground">
+      <div className={cn(loadingState, 'py-24')}>
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     )
@@ -31,7 +30,7 @@ export function AdminPage() {
             Staff view of all customer claims across transactions.
           </p>
         </div>
-        <span className="max-w-full truncate rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className={cn(eyebrowPill, 'max-w-full truncate')}>
           Demo data · refreshes on each claim
         </span>
       </div>
@@ -45,7 +44,7 @@ export function AdminPage() {
       <div className={cn(card, 'mt-6 overflow-hidden')}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b border-border/60 bg-secondary/60 text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+            <thead className={cn('border-b border-border/60 bg-secondary/60 text-left', microLabel)}>
               <tr>
                 <th className="px-4 py-2.5 font-medium">Ref</th>
                 <th className="px-4 py-2.5 font-medium">Merchant</th>
@@ -56,32 +55,33 @@ export function AdminPage() {
               </tr>
             </thead>
             <tbody className="text-xs">
-              {disputes.map((d) => {
-                const txn = transactions.find((t) => t.id === d.transactionId)
-                const reason = getReason(d.reason)
+              {disputes.map((dispute) => {
+                const display = getDisputeDisplay(dispute, transactions)
                 return (
                   <tr
-                    key={d.ref}
+                    key={dispute.ref}
                     className="border-t border-border/40 transition-colors duration-200 hover:bg-secondary/40"
                   >
-                    <td className="whitespace-nowrap px-4 py-3 font-semibold tabular-nums">{d.ref}</td>
+                    <td className="whitespace-nowrap px-4 py-3 font-semibold tabular-nums">
+                      {dispute.ref}
+                    </td>
                     <td className="px-4 py-3">
                       <span className="block font-semibold tracking-tight text-card-foreground">
-                        {txn?.merchant ?? '—'}
+                        {display.merchantLabel}
                       </span>
                       <span className="block text-[11px] text-muted-foreground">
-                        {txn?.category ?? ''}
+                        {display.transaction?.category ?? ''}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{reason?.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{display.reasonLabel}</td>
                     <td className="px-4 py-3 tabular-nums text-muted-foreground">
-                      {txn ? formatAmount(txn.amount, txn.currency) : '—'}
+                      {display.amountLabel}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 tabular-nums">
-                      {txn ? formatTxnDate(txn.date) : '—'}
+                      {display.transactionDateLabel}
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge status={d.status} className="whitespace-nowrap" />
+                      <StatusBadge status={dispute.status} className="whitespace-nowrap" />
                     </td>
                   </tr>
                 )
@@ -101,7 +101,7 @@ function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: n
         {icon}
       </span>
       <p className="mt-3 text-2xl font-bold tabular-nums tracking-tight">{value}</p>
-      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className={microLabel}>{label}</p>
     </div>
   )
 }

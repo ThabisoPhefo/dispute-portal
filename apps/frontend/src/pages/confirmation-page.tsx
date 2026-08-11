@@ -2,9 +2,8 @@ import type { ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, Clock, Loader2, Mail, MapPin, MessageSquare, UserRound } from 'lucide-react'
 import { useDispute, useTransactions } from '../lib/queries'
-import { formatAmount, formatTxnDate } from '../lib/format'
-import { getReason } from '../lib/dispute-reasons'
-import { card, microLabel } from '../lib/ui'
+import { getDisputeDisplay } from '../lib/dispute-display'
+import { card, loadingState, microLabel, pageShellNarrow } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { buttonVariants } from '../components/ui/button-variants'
 import { DetailItem } from '../components/ui/detail-item'
@@ -16,19 +15,18 @@ export function ConfirmationPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground">
+      <div className={cn(loadingState, 'py-24')}>
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     )
   }
   if (isError || !dispute) return <Navigate to="/disputes" replace />
 
-  const transaction = transactions.find((t) => t.id === dispute.transactionId)
-  const reason = getReason(dispute.reason)
+  const display = getDisputeDisplay(dispute, transactions)
   const cancelled = dispute.status === 'CANCELLED'
 
   return (
-    <div className="mx-auto max-w-3xl px-3 py-6 sm:px-6 sm:py-12">
+    <div className={pageShellNarrow}>
       <div className={cn(card, 'p-4 sm:p-8')}>
         <div className="flex items-start gap-3">
           <CheckCircle2
@@ -58,26 +56,22 @@ export function ConfirmationPage() {
           <DetailItem
             icon={<UserRound className="h-3.5 w-3.5" />}
             label="Merchant"
-            value={transaction?.merchant ?? '—'}
+            value={display.merchantLabel}
           />
           <DetailItem
             icon={<Clock className="h-3.5 w-3.5" />}
             label="Amount"
-            value={
-              transaction
-                ? formatAmount(transaction.amount, transaction.currency)
-                : '—'
-            }
+            value={display.amountLabel}
           />
           <DetailItem
             icon={<CalendarDays className="h-3.5 w-3.5" />}
             label="Transaction date"
-            value={transaction ? formatTxnDate(transaction.date) : '—'}
+            value={display.transactionDateLabel}
           />
           <DetailItem
             icon={<MapPin className="h-3.5 w-3.5" />}
             label="Reason"
-            value={reason?.name ?? '—'}
+            value={display.reasonLabel}
           />
         </dl>
 
@@ -86,14 +80,14 @@ export function ConfirmationPage() {
           <Notice
             icon={<MessageSquare className="h-3.5 w-3.5" />}
             title="SMS notification"
-            body={`Capitec: Dispute ${dispute.ref} filed for ${transaction?.merchant ?? 'your transaction'}. Reply C to cancel.`}
+            body={`Capitec: Dispute ${dispute.ref} filed for ${display.transaction?.merchant ?? 'your transaction'}. Reply C to cancel.`}
           />
           <Notice
             icon={<Mail className="h-3.5 w-3.5" />}
             title="Email confirmation"
             body="Your claim details have been sent to your inbox."
           />
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className={microLabel}>
             Simulated for this prototype — no real messages are delivered
           </p>
         </div>

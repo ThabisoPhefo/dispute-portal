@@ -1,6 +1,6 @@
 import { REASONS } from '../../lib/dispute-reasons'
 import { cn } from '../../lib/utils'
-import { selectableCard } from '../../lib/ui'
+import { sectionLead, sectionTitle, selectableCard } from '../../lib/ui'
 
 export function ReasonStep({
   reasonId,
@@ -11,33 +11,33 @@ export function ReasonStep({
 }) {
   return (
     <section aria-labelledby="step-reason">
-      <h2 id="step-reason" className="text-sm font-bold tracking-tight">
+      <h2 id="step-reason" className={sectionTitle}>
         Why are you disputing this?
       </h2>
-      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+      <p className={sectionLead}>
         Choose the reason that best matches your claim.
       </p>
       <div className="mt-4 grid gap-3">
-        {REASONS.map((r, i) => (
+        {REASONS.map((reason, index) => (
           <button
-            key={r.id}
+            key={reason.id}
             type="button"
-            onClick={() => onSelect(r.id)}
-            style={{ animationDelay: `${i * 60}ms` }}
+            onClick={() => onSelect(reason.id)}
+            style={{ animationDelay: `${index * 60}ms` }}
             className={cn(
               'animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300 flex items-start gap-3',
               selectableCard.base,
-              reasonId === r.id ? selectableCard.selected : selectableCard.idle,
+              reasonId === reason.id ? selectableCard.selected : selectableCard.idle,
             )}
           >
             <span className="min-w-0">
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-semibold tracking-tight text-card-foreground">
-                  {r.name}
+                  {reason.name}
                 </span>
               </span>
               <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                {r.description}
+                {reason.description}
               </span>
             </span>
           </button>

@@ -4,6 +4,7 @@ import type { DisputeReasonOption } from '../../lib/dispute-reasons'
 import { formatAmount, formatTxnDate } from '../../lib/format'
 import { card } from '../../lib/ui'
 import { cn } from '../../lib/utils'
+import { Button } from '../ui/button'
 import { StatusBadge } from '../ui/status-badge'
 import { DetailItem } from '../ui/detail-item'
 
@@ -61,14 +62,15 @@ export function DisputeCard({
 
       {active ? (
         <div className="mt-5 border-t border-border/40 pt-4">
-          <button
+          <Button
             type="button"
+            variant="destructive"
+            size="sm"
             onClick={onCancel}
             disabled={pending}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-destructive/40 bg-card px-4 py-2 text-xs font-medium text-destructive shadow-sm transition-all duration-200 hover:bg-destructive/5 hover:shadow-md disabled:pointer-events-none disabled:opacity-40"
           >
             <XCircle className="h-3.5 w-3.5" /> Cancel dispute
-          </button>
+          </Button>
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
             Cancelling closes this claim immediately.
           </p>

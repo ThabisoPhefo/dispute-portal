@@ -1,8 +1,9 @@
 import { ManagePanel } from '../components/manage/manage-panel'
+import { pageShellNarrow } from '../lib/ui'
 
 export function ManagePage() {
   return (
-    <div className="mx-auto max-w-3xl px-3 py-6 sm:px-6 sm:py-12">
+    <div className={pageShellNarrow}>
       <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Your disputes</h1>
       <p className="mt-2 max-w-lg text-xs leading-relaxed text-muted-foreground">
         Browse your claim history from newest to oldest, or look up a reference. Try{' '}

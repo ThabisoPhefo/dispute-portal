@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { CalendarCheck, ShieldCheck, Timer, Wallet } from 'lucide-react'
 import { DisputeFlow } from '../components/dispute/dispute-flow'
 import { useTransactions } from '../lib/queries'
-import { card } from '../lib/ui'
+import { card, eyebrowPill } from '../lib/ui'
 import { cn } from '../lib/utils'
 import { buttonVariants } from '../components/ui/button-variants'
 import type { ReactNode } from 'react'
@@ -13,7 +13,7 @@ export function HomePage() {
   return (
     <div className="mx-auto max-w-6xl px-3 pb-10 pt-6 sm:px-6 sm:pt-12">
       <section className="max-w-2xl">
-        <span className="inline-flex max-w-full items-center gap-2 truncate rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className={cn(eyebrowPill, 'inline-flex max-w-full items-center gap-2 truncate')}>
           <span className="h-1 w-1 shrink-0 rounded-full bg-foreground" aria-hidden="true" />
           Transactions & disputes
         </span>

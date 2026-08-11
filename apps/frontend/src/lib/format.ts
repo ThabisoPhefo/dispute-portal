@@ -12,3 +12,11 @@ export function formatTxnDate(iso: string) {
     month: 'short',
   })
 }
+
+export function formatFiledDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-ZA', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
