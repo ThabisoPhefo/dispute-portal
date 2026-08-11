@@ -21,7 +21,7 @@ export function HomePage() {
           Something doesn&apos;t add up? Flag it in under a minute.
         </h1>
         <p className="mt-3 max-w-xl text-xs leading-relaxed text-muted-foreground text-pretty sm:text-sm">
-          Review your recent transactions and raise a dispute on anything that looks wrong — track every
+          Review your recent transactions and raise a dispute on anything that looks wrong - track every
           claim from open to resolved.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">

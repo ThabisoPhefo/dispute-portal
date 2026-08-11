@@ -21,7 +21,7 @@ export function TransactionStep({
   onSelect: (id: string) => void
 }) {
   const [page, setPage] = useState(0)
-  const [view, setView] = useState<ViewMode>('cards')
+  const [view, setView] = useState<ViewMode>('list')
   const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE))
   const start = page * PAGE_SIZE
   const pageItems = transactions.slice(start, start + PAGE_SIZE)
@@ -57,23 +57,9 @@ export function TransactionStep({
             aria-hidden
             className={cn(
               'absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-md bg-foreground shadow-sm transition-transform duration-300 ease-out',
-              view === 'list' && 'translate-x-full',
+              view === 'cards' && 'translate-x-full',
             )}
           />
-          <button
-            type="button"
-            onClick={() => setView('cards')}
-            aria-pressed={view === 'cards'}
-            className={cn(
-              'relative z-10 inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors duration-200',
-              view === 'cards'
-                ? 'text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <LayoutGrid className="h-3.5 w-3.5" />
-            Cards
-          </button>
           <button
             type="button"
             onClick={() => setView('list')}
@@ -87,6 +73,20 @@ export function TransactionStep({
           >
             <List className="h-3.5 w-3.5" />
             List
+          </button>
+          <button
+            type="button"
+            onClick={() => setView('cards')}
+            aria-pressed={view === 'cards'}
+            className={cn(
+              'relative z-10 inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors duration-200',
+              view === 'cards'
+                ? 'text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+            Cards
           </button>
         </div>
       </div>
