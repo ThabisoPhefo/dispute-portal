@@ -1,8 +1,8 @@
 import type { CreateDisputeRequest, UpdateDisputeStatusRequest } from '@dispute-portal/shared-types'
-import { disputeRepo } from '../repositories/dispute.repo'
-import { transactionRepo } from '../repositories/transaction.repo'
-import { toDispute } from '../lib/mappers'
-import { AppError } from '../lib/errors'
+import { disputeRepo } from '../repositories/dispute.repo.js'
+import { transactionRepo } from '../repositories/transaction.repo.js'
+import { toDispute } from '../lib/mappers.js'
+import { AppError } from '../lib/errors.js'
 
 function nextRef() {
   const n = Math.floor(1000 + Math.random() * 8999)
@@ -26,10 +26,17 @@ export const disputeService = {
     if (!txn) throw new AppError(404, 'Transaction not found')
 
     let ref = nextRef()
-    for (let i = 0; i < 5; i++) {
+    let available = false
+    for (let attempt = 0; attempt < 5; attempt++) {
       const existing = await disputeRepo.findByRef(ref)
-      if (!existing) break
+      if (!existing) {
+        available = true
+        break
+      }
       ref = nextRef()
+    }
+    if (!available) {
+      throw new AppError(409, 'Could not allocate a unique dispute reference. Please try again.')
     }
 
     const row = await disputeRepo.create({

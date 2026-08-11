@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { transactionsRouter } from './transactions'
-import { disputesRouter } from './disputes'
+import { transactionsRouter } from './transactions.js'
+import { disputesRouter } from './disputes.js'
 
 export const apiRouter = Router()
 

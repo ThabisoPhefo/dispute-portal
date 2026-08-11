@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
-import { AppError } from '../lib/errors'
+import { AppError } from '../lib/errors.js'
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {

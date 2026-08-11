@@ -1,5 +1,5 @@
-import { transactionRepo } from '../repositories/transaction.repo'
-import { toTransaction } from '../lib/mappers'
+import { transactionRepo } from '../repositories/transaction.repo.js'
+import { toTransaction } from '../lib/mappers.js'
 
 export const transactionService = {
   async list() {

@@ -3,7 +3,7 @@ import {
   CreateDisputeRequestSchema,
   UpdateDisputeStatusSchema,
 } from '@dispute-portal/shared-types'
-import { disputeService } from '../services/dispute.service'
+import { disputeService } from '../services/dispute.service.js'
 
 export const disputesRouter = Router()
 
