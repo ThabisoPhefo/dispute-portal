@@ -1,22 +1,31 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../lib/utils'
+import { useViewMode } from '../lib/use-view-mode'
+import { ViewModeMenu } from './view-mode-menu'
 
-const NAV = [
+const CUSTOMER_NAV = [
   { to: '/', label: 'Transactions' },
   { to: '/disputes', label: 'Disputes' },
-  { to: '/staff', label: 'Staff' },
 ]
+
+const STAFF_NAV = [{ to: '/staff', label: 'Staff' }]
 
 function isActivePath(pathname: string, to: string) {
   if (to === '/') return pathname === '/'
-  if (to === '/disputes') return pathname.startsWith('/disputes') || pathname.startsWith('/confirmation')
+  if (to === '/disputes') {
+    return pathname.startsWith('/disputes') || pathname.startsWith('/confirmation')
+  }
   return pathname.startsWith(to)
 }
 
 export function AppHeader() {
   const { pathname } = useLocation()
+  const { viewMode } = useViewMode()
   const [scrolled, setScrolled] = useState(false)
+
+  const nav = viewMode === 'staff' ? STAFF_NAV : CUSTOMER_NAV
+  const homeTo = viewMode === 'staff' ? '/staff' : '/'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -38,7 +47,7 @@ export function AppHeader() {
         )}
       >
         <Link
-          to="/"
+          to={homeTo}
           aria-label="Capitec home"
           className="flex shrink-0 items-center transition-opacity duration-200 hover:opacity-70"
         >
@@ -54,7 +63,7 @@ export function AppHeader() {
         </Link>
 
         <nav aria-label="Main" className="ml-auto flex min-w-0 items-center gap-0.5 sm:gap-1.5">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = isActivePath(pathname, item.to)
             return (
               <Link
@@ -74,6 +83,8 @@ export function AppHeader() {
             )
           })}
         </nav>
+
+        <ViewModeMenu />
       </div>
     </header>
   )

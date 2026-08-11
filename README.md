@@ -29,8 +29,6 @@ docker compose up --build
 
 Wait until you see the backend log: `API listening on http://localhost:3001`.
 
-Access UI site through `http://localhost/`
-
 ### 3. Seed sample data
 
 In a **second** terminal (from the same repo folder):
